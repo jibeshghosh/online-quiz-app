@@ -55,6 +55,19 @@ class QuizAppTests(TestCase):
         response = self.client.get(reverse('register'))
         self.assertEqual(response.status_code, 200)
 
+    def test_register_user_post(self):
+        """Verify submitting registration form creates user and logs in without 500 error."""
+        response = self.client.post(reverse('register'), {
+            'username': 'newuser123',
+            'first_name': 'New',
+            'last_name': 'User',
+            'email': 'newuser123@example.com',
+            'password1': 'ComplexPass123!',
+            'password2': 'ComplexPass123!'
+        })
+        self.assertRedirects(response, reverse('dashboard'))
+        self.assertTrue(User.objects.filter(username='newuser123').exists())
+
     def test_quiz_attempt_requires_login(self):
         """Verify that starting a quiz requires authentication."""
         response = self.client.get(reverse('quiz_attempt', args=[self.quiz.id]))
