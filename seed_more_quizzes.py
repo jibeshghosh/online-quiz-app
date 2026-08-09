@@ -7,6 +7,20 @@ django.setup()
 
 from quizzes.models import Quiz, Question
 from quizzes.quiz_data import ALL_QUIZZES_DATA
+from django.contrib.sites.models import Site
+
+# Update Django Site object (ID 1) domain for allauth OAuth callbacks on Render
+render_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if render_hostname:
+    try:
+        site, created = Site.objects.get_or_create(id=1)
+        site.domain = render_hostname
+        site.name = render_hostname
+        site.save()
+        print(f"Updated Django Site domain to: {render_hostname}")
+    except Exception as e:
+        print(f"Notice: Site domain update warning: {e}")
+
 
 print("Seeding 40 topic-matched quizzes and 400 questions...")
 
