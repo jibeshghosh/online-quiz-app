@@ -249,3 +249,11 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+# Auto-generate favicons if missing
+try:
+    from generate_favicons import generate_favicons
+    generate_favicons()
+except Exception as e:
+    pass
+
+
