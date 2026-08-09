@@ -693,30 +693,84 @@ a {
     }
 }
 
+/* Button helper for mobile text */
+.btn-text-desktop {
+    display: inline;
+}
+.btn-text-mobile {
+    display: none;
+}
+
 /* Animations and Responsive Styles */
 @media (max-width: 992px) {
     .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 270px !important;
+        z-index: 1050;
         transform: translateX(-100%);
-        width: var(--sidebar-width) !important;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: none;
     }
     .sidebar.mobile-active {
         transform: translateX(0);
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
     }
     .main-content {
         margin-left: 0 !important;
         padding: 0 !important;
     }
+    .main-content.public-content {
+        padding-top: 68px;
+    }
     .content-container {
-        padding: 24px;
+        padding: 24px 20px;
+    }
+    .top-header {
+        position: sticky;
+        top: 0;
+        z-index: 990;
+        height: 68px;
+        padding: 0 16px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
     }
     .mobile-toggle-btn {
         display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        border-radius: var(--border-radius-sm);
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+    .mobile-toggle-btn:hover {
+        background: var(--accent-primary);
+        color: #ffffff;
+        border-color: var(--accent-primary);
     }
     .header-mobile-brand {
         display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
     }
-    .top-header {
-        padding: 0 20px;
+    .header-mobile-brand .navbar-logo-text {
+        font-size: 1.25rem;
+        font-weight: 800;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-family: 'Outfit', sans-serif;
     }
 }
 
@@ -724,22 +778,85 @@ a {
     .header-search {
         display: none;
     }
+    .content-container {
+        padding: 20px 16px;
+    }
+    .public-navbar {
+        height: 68px;
+    }
+    .public-navbar-container {
+        padding: 0 16px;
+    }
+    .navbar-logo-text {
+        font-size: 1.25rem;
+    }
+    .navbar-actions {
+        gap: 8px;
+    }
+    .navbar-actions .btn {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-text-desktop {
+        display: none;
+    }
+    .btn-text-mobile {
+        display: inline;
+    }
+    .navbar-brand {
+        gap: 6px;
+    }
+    .navbar-logo-text {
+        font-size: 1.1rem;
+    }
+    .header-mobile-brand .navbar-logo-text {
+        font-size: 1.1rem;
+    }
+    .header-actions {
+        gap: 8px;
+    }
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+    }
+    .avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.95rem;
+    }
+    .dropdown-menu {
+        width: calc(100vw - 32px);
+        max-width: 290px;
+        right: -8px;
+    }
+    .notification-menu {
+        width: calc(100vw - 32px);
+        max-width: 290px;
+    }
 }
 
 /* Overlay for Mobile Sidebar */
 .sidebar-overlay {
-    display: none;
+    display: block;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 98;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1040;
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
 }
 .sidebar-overlay.active {
-    display: block;
+    opacity: 1;
+    pointer-events: auto;
 }
 
 /* Accessibility settings for reduced motion */

@@ -23,14 +23,33 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Mobile Drawer toggles
     if (mobileToggle && sidebar && sidebarOverlay) {
-        mobileToggle.addEventListener('click', function() {
+        function closeMobileSidebar() {
+            sidebar.classList.remove('mobile-active');
+            sidebarOverlay.classList.remove('active');
+        }
+
+        mobileToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
             sidebar.classList.add('mobile-active');
             sidebarOverlay.classList.add('active');
         });
         
-        sidebarOverlay.addEventListener('click', function() {
-            sidebar.classList.remove('mobile-active');
-            sidebarOverlay.classList.remove('active');
+        sidebarOverlay.addEventListener('click', closeMobileSidebar);
+
+        // Close sidebar on link click on mobile
+        sidebar.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 992) {
+                    closeMobileSidebar();
+                }
+            });
+        });
+
+        // Close on Escape key press
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMobileSidebar();
+            }
         });
     }
     

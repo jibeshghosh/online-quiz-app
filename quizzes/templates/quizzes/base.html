@@ -41,11 +41,14 @@
                     <span class="navbar-logo-text">Quiznapse</span>
                 </a>
                 <div class="navbar-actions">
-                    <button id="public-theme-toggle" class="btn btn-secondary theme-toggle-btn">
+                    <button id="public-theme-toggle" class="btn btn-secondary theme-toggle-btn" aria-label="Toggle theme">
                         <i class="fas fa-moon"></i>
                     </button>
                     <a href="{% url 'login' %}" class="btn btn-secondary">Sign In</a>
-                    <a href="{% url 'register' %}" class="btn btn-primary">Get Started</a>
+                    <a href="{% url 'register' %}" class="btn btn-primary">
+                        <span class="btn-text-desktop">Get Started</span>
+                        <span class="btn-text-mobile">Join</span>
+                    </a>
                 </div>
             </div>
         </nav>
@@ -100,23 +103,8 @@
                         <span class="sidebar-icon"><i class="fas fa-chevron-left"></i></span>
                         <span>Collapse Menu</span>
                     </button>
-                    <!-- Log out is now in the top profile dropdown, but we can keep it here or remove it. Let's keep it as an option in case -->
                 </div>
             </aside>
-
-            <!-- Mobile Navbar (Shown only on small screens) -->
-            <header class="mobile-header">
-                <button id="mobile-toggle" class="mobile-toggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <a href="{% url 'dashboard' %}" class="mobile-brand" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
-                    {% include 'quizzes/includes/logo.html' with size='20' id='mobile' %}
-                    <span>Quiznapse</span>
-                </a>
-                <button id="mobile-theme-toggle" class="mobile-toggle" style="background: transparent; border: none; font-size: 1.2rem;">
-                    <i class="fas fa-moon"></i>
-                </button>
-            </header>
 
             <!-- Sidebar Overlay for Mobile -->
             <div id="sidebar-overlay" class="sidebar-overlay"></div>
@@ -126,10 +114,19 @@
         <main class="main-content {% if not user.is_authenticated %}public-content{% endif %}">
             {% if user.is_authenticated %}
                 <header class="top-header">
-                    <form action="{% url 'quiz_list' %}" method="get" class="header-search">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" name="search" placeholder="Search quizzes..." class="search-input" value="{{ request.GET.search }}">
-                    </form>
+                    <div class="header-left">
+                        <button id="mobile-toggle" class="mobile-toggle-btn" aria-label="Toggle navigation menu">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <a href="{% url 'dashboard' %}" class="header-mobile-brand">
+                            {% include 'quizzes/includes/logo.html' with size='22' id='mobile' %}
+                            <span class="navbar-logo-text">Quiznapse</span>
+                        </a>
+                        <form action="{% url 'quiz_list' %}" method="get" class="header-search">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" name="search" placeholder="Search quizzes..." class="search-input" value="{{ request.GET.search }}">
+                        </form>
+                    </div>
                     <div class="header-actions">
                         <button id="theme-toggle" class="btn btn-icon theme-toggle-btn">
                             <i class="fas fa-moon"></i>
