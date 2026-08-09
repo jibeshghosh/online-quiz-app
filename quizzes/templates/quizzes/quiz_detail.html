@@ -1,0 +1,104 @@
+{% extends 'quizzes/base.html' %}
+{% load static %}
+
+{% block title %}{{ quiz.title }} | Instructions | Quiznapse{% endblock %}
+
+{% block content %}
+<div class="quiz-detail-wrapper" style="max-width: 900px; margin: 0 auto; padding-bottom: 40px;">
+    
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 24px; font-size: 0.9rem; color: var(--text-secondary);">
+        <a href="{% url 'dashboard' %}" style="transition: color var(--transition-fast);"><i class="fas fa-columns"></i> Dashboard</a> &nbsp;/&nbsp; 
+        <a href="{% url 'quiz_list' %}" style="transition: color var(--transition-fast);">Explore Quizzes</a> &nbsp;/&nbsp; 
+        <span style="color: var(--text-primary);">{{ quiz.title }}</span>
+    </div>
+
+    <!-- Header Panel -->
+    <div class="quiz-detail-header">
+        <div>
+            <h1 style="font-size: 2.2rem; font-family: 'Outfit', sans-serif;">{{ quiz.title }}</h1>
+            <div class="quiz-meta-info">
+                <span class="meta-tag"><i class="fas fa-folder-open" style="color: var(--accent-primary);"></i> {{ quiz.category }}</span>
+                <span class="meta-tag"><i class="fas fa-signal" style="color: var(--accent-secondary);"></i> {{ quiz.difficulty }}</span>
+                <span class="meta-tag"><i class="fas fa-question-circle" style="color: var(--info);"></i> {{ questions_count }} Questions</span>
+                <span class="meta-tag"><i class="fas fa-clock" style="color: var(--warning);"></i> {{ quiz.time_limit }} Minutes</span>
+                <span class="meta-tag"><i class="fas fa-percentage" style="color: var(--success);"></i> {{ quiz.pass_mark }}% to Pass</span>
+            </div>
+        </div>
+        
+        <a href="{% url 'quiz_attempt' quiz.id %}" class="btn btn-primary" style="padding: 14px 32px; font-size: 1.05rem; border-radius: var(--border-radius-sm);">
+            Start Quiz <i class="fas fa-play"></i>
+        </a>
+    </div>
+
+    <div class="quiz-detail-grid">
+        <!-- Left Pane: Rules & Description -->
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            <div class="glass-card">
+                <h3 style="font-size: 1.25rem; margin-bottom: 12px; font-family: 'Outfit', sans-serif;">Description</h3>
+                <p style="color: var(--text-secondary); line-height: 1.6; font-size: 0.95rem;">
+                    {{ quiz.description }}
+                </p>
+            </div>
+
+            <div class="glass-card">
+                <h3 style="font-size: 1.25rem; margin-bottom: 16px; font-family: 'Outfit', sans-serif;">Important Instructions</h3>
+                <ul style="list-style-type: none; display: flex; flex-direction: column; gap: 12px; color: var(--text-secondary); font-size: 0.9rem;">
+                    <li style="display: flex; gap: 12px; align-items: flex-start;">
+                        <i class="fas fa-clock" style="color: var(--warning); margin-top: 3px;"></i>
+                        <span><strong>Time Limit:</strong> This quiz has a total limit of {{ quiz.time_limit }} minutes. Once started, the countdown cannot be paused or stopped.</span>
+                    </li>
+                    <li style="display: flex; gap: 12px; align-items: flex-start;">
+                        <i class="fas fa-save" style="color: var(--accent-primary); margin-top: 3px;"></i>
+                        <span><strong>Auto-Save Progress:</strong> Your selected answers are temporarily cached on the client side. Refreshing the browser will not erase your selected selections.</span>
+                    </li>
+                    <li style="display: flex; gap: 12px; align-items: flex-start;">
+                        <i class="fas fa-exclamation-triangle" style="color: var(--danger); margin-top: 3px;"></i>
+                        <span><strong>Automatic Submission:</strong> The quiz will automatically grade and submit all answers when the countdown timer reaches zero.</span>
+                    </li>
+                    <li style="display: flex; gap: 12px; align-items: flex-start;">
+                        <i class="fas fa-check-double" style="color: var(--success); margin-top: 3px;"></i>
+                        <span><strong>Passing Threshold:</strong> A score of {{ quiz.pass_mark }}% or higher is required to receive a status of <strong>Passed</strong>.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Pane: Attempt History -->
+        <div class="glass-card">
+            <h3 style="font-size: 1.2rem; margin-bottom: 16px; font-family: 'Outfit', sans-serif;">Your Past Attempts</h3>
+            
+            {% if attempts %}
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    {% for attempt in attempts %}
+                        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <span style="display: block; font-size: 0.75rem; color: var(--text-muted);">{{ attempt.completed_at|date:"M d, Y" }}</span>
+                                <span style="font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--text-primary);">{{ attempt.percentage }}%</span>
+                                <span style="font-size: 0.8rem; color: var(--text-secondary); margin-left: 4px;">({{ attempt.score }}/{{ questions_count }})</span>
+                            </div>
+                            <span class="badge {% if attempt.status == 'Passed' %}badge-success{% else %}badge-danger{% endif %}" style="font-size: 0.7rem; padding: 2px 8px;">
+                                {{ attempt.status }}
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.9rem;">
+                    <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 8px; display: block; opacity: 0.5;"></i>
+                    No previous attempts logged for this quiz.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Expand content space when sidebar is active */
+    @media (min-width: 993px) {
+        .main-content {
+            padding: 40px;
+        }
+    }
+</style>
+{% endblock %}

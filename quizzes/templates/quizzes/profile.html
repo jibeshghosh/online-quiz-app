@@ -1,0 +1,130 @@
+{% extends 'quizzes/base.html' %}
+{% load static %}
+
+{% block title %}Profile Settings | Quiznapse{% endblock %}
+
+{% block content %}
+<div class="profile-wrapper" style="max-width: 1100px; margin: 0 auto; padding-bottom: 40px;">
+    
+    <div class="section-header">
+        <h1 class="section-title">Profile & Performance</h1>
+        <p style="color: var(--text-secondary);">Manage your profile details and monitor category proficiency metrics.</p>
+    </div>
+
+    <div class="profile-grid">
+        <!-- Left Pane: Info Card and Form -->
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- Avatar Card -->
+            <div class="glass-card profile-avatar-card">
+                <div class="profile-avatar">
+                    {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
+                </div>
+                <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+                <p>{{ user.email }}</p>
+                {% if profile.bio %}
+                    <p style="color: var(--text-secondary); font-style: italic; font-size: 0.9rem; border-top: 1px solid var(--border-color); padding-top: 16px; width: 100%;">
+                        "{{ profile.bio }}"
+                    </p>
+                {% endif %}
+            </div>
+
+            <!-- Profile Settings Form -->
+            <div class="glass-card">
+                <h3 style="font-size: 1.25rem; margin-bottom: 20px; font-family: 'Outfit', sans-serif;">Account Settings</h3>
+                <form method="post" action="{% url 'profile' %}">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="id_username">Username</label>
+                        {{ u_form.username }}
+                        {% if u_form.username.errors %}
+                            <span class="form-errors">{{ u_form.username.errors }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label" for="id_first_name">First Name</label>
+                            {{ u_form.first_name }}
+                            {% if u_form.first_name.errors %}
+                                <span class="form-errors">{{ u_form.first_name.errors }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="id_last_name">Last Name</label>
+                            {{ u_form.last_name }}
+                            {% if u_form.last_name.errors %}
+                                <span class="form-errors">{{ u_form.last_name.errors }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="id_email">Email Address</label>
+                        {{ u_form.email }}
+                        {% if u_form.email.errors %}
+                            <span class="form-errors">{{ u_form.email.errors }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="id_bio">Biography</label>
+                        {{ p_form.bio }}
+                        {% if p_form.bio.errors %}
+                            <span class="form-errors">{{ p_form.bio.errors }}</span>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">
+                        Save Changes <i class="fas fa-save"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Pane: Performance and Analytics -->
+        <div class="glass-card profile-stats-card">
+            <h3 style="font-size: 1.3rem; font-family: 'Outfit', sans-serif;">Topic Competency</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px;">Your average accuracy levels across the active learning tracks:</p>
+
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                {% for category, stats in profile.category_stats.items %}
+                    <div class="progress-item">
+                        <div class="progress-info">
+                            <span class="progress-name" style="font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-{% if category == 'Programming' %}code{% elif category == 'Science' %}atom{% elif category == 'Mathematics' %}calculator{% elif category == 'General Knowledge' %}globe{% elif category == 'History' %}monument{% elif category == 'Literature' %}book-open{% elif category == 'Sports' %}trophy{% else %}brain{% endif %}"
+                                   style="color: {% if category == 'Programming' %}#3b82f6{% elif category == 'Science' %}#ec4899{% elif category == 'Mathematics' %}#10b981{% elif category == 'General Knowledge' %}#f59e0b{% elif category == 'History' %}#d97706{% elif category == 'Literature' %}#8b5cf6{% elif category == 'Sports' %}#2563eb{% else %}#f43f5e{% endif %};"></i>
+                                {{ category }}
+                            </span>
+                            <span class="progress-value">
+                                {% if stats.count > 0 %}
+                                    <strong>{{ stats.avg_score }}%</strong> avg ({{ stats.count }} attempt{{ stats.count|pluralize }})
+                                {% else %}
+                                    <span style="color: var(--text-muted); font-size: 0.8rem;">No attempts</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width: {{ stats.avg_score }}%; 
+                                 background: linear-gradient(to right, {% if category == 'Programming' %}#3b82f6, #6366f1{% elif category == 'Science' %}#ec4899, #d946ef{% elif category == 'Mathematics' %}#10b981, #14b8a6{% elif category == 'General Knowledge' %}#f59e0b, #eab308{% elif category == 'History' %}#d97706, #f59e0b{% elif category == 'Literature' %}#8b5cf6, #a78bfa{% elif category == 'Sports' %}#2563eb, #3b82f6{% else %}#f43f5e, #f43f5e{% endif %});"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Extra stats card grid inside the right panel -->
+            <div style="margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); padding: 20px; text-align: center;">
+                    <span style="display: block; font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--accent-primary); line-height: 1;">{{ profile.completed_attempts_count }}</span>
+                    <span style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; display: block; margin-top: 8px;">Completed Quizzes</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); padding: 20px; text-align: center;">
+                    <span style="display: block; font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--success); line-height: 1;">{{ profile.pass_rate }}%</span>
+                    <span style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; display: block; margin-top: 8px;">Pass Rate</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

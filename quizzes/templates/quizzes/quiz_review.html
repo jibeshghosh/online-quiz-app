@@ -1,0 +1,123 @@
+{% extends 'quizzes/base.html' %}
+{% load static %}
+
+{% block title %}Review Answers: {{ attempt.quiz.title }} | Quiznapse{% endblock %}
+
+{% block content %}
+<div class="quiz-review-wrapper" style="max-width: 900px; margin: 0 auto; padding-bottom: 40px;">
+    
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 24px; font-size: 0.9rem; color: var(--text-secondary);">
+        <a href="{% url 'dashboard' %}"><i class="fas fa-columns"></i> Dashboard</a> &nbsp;/&nbsp; 
+        <a href="{% url 'quiz_list' %}">Explore Quizzes</a> &nbsp;/&nbsp; 
+        <a href="{% url 'quiz_result' attempt.id %}">Results</a> &nbsp;/&nbsp; 
+        <span style="color: var(--text-primary);">Review</span>
+    </div>
+
+    <!-- Review Header -->
+    <div style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+        <div>
+            <h1 style="font-size: 2rem; font-family: 'Outfit', sans-serif;">Review Answers</h1>
+            <p style="color: var(--text-secondary); margin-top: 4px;">{{ attempt.quiz.title }} &nbsp;•&nbsp; Score: {{ attempt.score }}/{{ questions.count }} ({{ attempt.percentage }}%)</p>
+        </div>
+        <a href="{% url 'quiz_result' attempt.id %}" class="btn btn-secondary">
+            Back to Results
+        </a>
+    </div>
+
+    <!-- Questions list -->
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+        {% for question in questions %}
+            <div class="glass-card review-question-card {% if question.user_answer.is_correct %}correct{% elif not question.user_answer.selected_option %}skipped{% else %}incorrect{% endif %}">
+                
+                <!-- Status Badge -->
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="review-status-indicator {% if question.user_answer.is_correct %}cor{% elif not question.user_answer.selected_option %}skp{% else %}inc{% endif %}">
+                        {% if question.user_answer.is_correct %}
+                            <i class="fas fa-check-circle"></i> Correct
+                        {% elif not question.user_answer.selected_option %}
+                            <i class="fas fa-minus-circle"></i> Skipped
+                        {% else %}
+                            <i class="fas fa-times-circle"></i> Incorrect
+                        {% endif %}
+                    </span>
+                    
+                    <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
+                        Question {{ forloop.counter }} of {{ questions.count }}
+                    </span>
+                </div>
+
+                <div class="question-text" style="font-size: 1.15rem; margin-bottom: 16px; margin-top: 8px;">
+                    {{ question.question_text }}
+                </div>
+
+                <!-- Review Choices Grid -->
+                <div class="review-options-list">
+                    <!-- Option A -->
+                    <div class="review-option 
+                        {% if question.correct_option == 'A' %}correct-choice{% elif question.user_answer.selected_option == 'A' and not question.user_answer.is_correct %}wrong-choice{% endif %}">
+                        <span class="option-label-letter" style="background: rgba(255,255,255,0.05); color: var(--text-primary);">A</span>
+                        <span style="flex: 1;">{{ question.option_a }}</span>
+                        {% if question.correct_option == 'A' %}
+                            <span class="review-option-badge cor">Correct Answer</span>
+                        {% elif question.user_answer.selected_option == 'A' %}
+                            <span class="review-option-badge inc">Your Choice</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Option B -->
+                    <div class="review-option 
+                        {% if question.correct_option == 'B' %}correct-choice{% elif question.user_answer.selected_option == 'B' and not question.user_answer.is_correct %}wrong-choice{% endif %}">
+                        <span class="option-label-letter" style="background: rgba(255,255,255,0.05); color: var(--text-primary);">B</span>
+                        <span style="flex: 1;">{{ question.option_b }}</span>
+                        {% if question.correct_option == 'B' %}
+                            <span class="review-option-badge cor">Correct Answer</span>
+                        {% elif question.user_answer.selected_option == 'B' %}
+                            <span class="review-option-badge inc">Your Choice</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Option C -->
+                    <div class="review-option 
+                        {% if question.correct_option == 'C' %}correct-choice{% elif question.user_answer.selected_option == 'C' and not question.user_answer.is_correct %}wrong-choice{% endif %}">
+                        <span class="option-label-letter" style="background: rgba(255,255,255,0.05); color: var(--text-primary);">C</span>
+                        <span style="flex: 1;">{{ question.option_c }}</span>
+                        {% if question.correct_option == 'C' %}
+                            <span class="review-option-badge cor">Correct Answer</span>
+                        {% elif question.user_answer.selected_option == 'C' %}
+                            <span class="review-option-badge inc">Your Choice</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Option D -->
+                    <div class="review-option 
+                        {% if question.correct_option == 'D' %}correct-choice{% elif question.user_answer.selected_option == 'D' and not question.user_answer.is_correct %}wrong-choice{% endif %}">
+                        <span class="option-label-letter" style="background: rgba(255,255,255,0.05); color: var(--text-primary);">D</span>
+                        <span style="flex: 1;">{{ question.option_d }}</span>
+                        {% if question.correct_option == 'D' %}
+                            <span class="review-option-badge cor">Correct Answer</span>
+                        {% elif question.user_answer.selected_option == 'D' %}
+                            <span class="review-option-badge inc">Your Choice</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Explanation container -->
+                {% if question.explanation %}
+                    <div class="explanation-box">
+                        <div class="explanation-title"><i class="fas fa-lightbulb" style="color: var(--warning);"></i> Explanation</div>
+                        <p>{{ question.explanation }}</p>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Review Footer navigation links -->
+    <div style="margin-top: 32px; text-align: center; border-top: 1px solid var(--border-color); padding-top: 24px;">
+        <a href="{% url 'quiz_list' %}" class="btn btn-primary">
+            Explore More Quizzes
+        </a>
+    </div>
+</div>
+{% endblock %}

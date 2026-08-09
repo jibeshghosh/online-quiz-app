@@ -1,0 +1,120 @@
+{% extends 'quizzes/base.html' %}
+{% load static %}
+
+{% block title %}Sign In - {{ provider_title }} Accounts{% endblock %}
+
+{% block content %}
+<div class="oauth-choose-container" style="max-width: 420px; margin: 100px auto; padding: 0 20px;">
+    <!-- Chooser Card -->
+    <div class="glass-card" style="padding: 40px 32px; border-radius: 8px; text-align: center; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color);">
+        
+        <!-- Logo -->
+        <div style="margin-bottom: 24px;">
+            {% if provider == 'google' %}
+                <!-- Flat modern Google Logo G -->
+                <svg viewBox="0 0 24 24" width="36" height="36" style="margin-bottom: 12px;">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+            {% else %}
+                <i class="fab fa-github" style="font-size: 3rem; color: var(--text-primary); margin-bottom: 16px;"></i>
+            {% endif %}
+            
+            <h2 style="font-size: 1.5rem; font-weight: 500; font-family: 'Outfit', sans-serif;">Choose an account</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 6px;">to continue to <strong style="color: var(--text-primary);">Quiznapse</strong></p>
+        </div>
+
+        <!-- Account List -->
+        <div style="display: flex; flex-direction: column; text-align: left; margin-bottom: 24px; border-bottom: 1px solid var(--border-color);">
+            
+            <!-- Account 1: Jibesh Ghosh -->
+            <form method="post" action="{% url provider|add:'_login_mock' %}">
+                {% csrf_token %}
+                <input type="hidden" name="email" value="jibesh2003@gmail.com">
+                <input type="hidden" name="name" value="Jibesh Ghosh">
+                <button type="submit" class="chooser-row" style="width: 100%; display: flex; align-items: center; gap: 16px; padding: 16px 12px; background: transparent; border: none; cursor: pointer; text-align: left; transition: background var(--transition-fast); border-top: 1px solid var(--border-color);">
+                    <div class="avatar-badge" style="background: #6366f1;">J</div>
+                    <div>
+                        <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-primary);">Jibesh Ghosh</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">jibesh2003@gmail.com</div>
+                    </div>
+                </button>
+            </form>
+
+            <!-- Account 2: Quiz Tester -->
+            <form method="post" action="{% url provider|add:'_login_mock' %}">
+                {% csrf_token %}
+                <input type="hidden" name="email" value="tester@quiznapse.com">
+                <input type="hidden" name="name" value="Quiz Tester">
+                <button type="submit" class="chooser-row" style="width: 100%; display: flex; align-items: center; gap: 16px; padding: 16px 12px; background: transparent; border: none; cursor: pointer; text-align: left; transition: background var(--transition-fast); border-top: 1px solid var(--border-color);">
+                    <div class="avatar-badge" style="background: #10b981;">Q</div>
+                    <div>
+                        <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-primary);">Quiz Tester</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">tester@quiznapse.com</div>
+                    </div>
+                </button>
+            </form>
+
+            <!-- Option 3: Add new account -->
+            <button type="button" onclick="toggleCustomAccountForm()" class="chooser-row" style="width: 100%; display: flex; align-items: center; gap: 16px; padding: 16px 12px; background: transparent; border: none; cursor: pointer; text-align: left; transition: background var(--transition-fast); border-top: 1px solid var(--border-color);">
+                <div class="avatar-badge" style="background: rgba(255,255,255,0.05); color: var(--text-secondary);"><i class="fas fa-user-plus" style="font-size: 0.9rem;"></i></div>
+                <div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: var(--accent-primary);">Use another account</div>
+                </div>
+            </button>
+        </div>
+
+        <!-- Custom Account Entry Form (hidden initially) -->
+        <div id="custom-account-form" style="display: none; text-align: left; padding: 12px; background: rgba(0,0,0,0.1); border-radius: var(--border-radius-sm); margin-bottom: 24px; animation: slideIn 0.2s ease-out;">
+            <form method="post" action="{% url provider|add:'_login_mock' %}">
+                {% csrf_token %}
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label class="form-label" style="font-size: 0.8rem;">Full Name</label>
+                    <input type="text" name="name" class="form-input" placeholder="e.g. John Doe" required style="padding: 8px 12px; font-size: 0.85rem;">
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label" style="font-size: 0.8rem;">Email Address</label>
+                    <input type="email" name="email" class="form-input" placeholder="e.g. johndoe@gmail.com" required style="padding: 8px 12px; font-size: 0.85rem;">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 10px; font-size: 0.85rem;">
+                    Sign In <i class="fas fa-sign-in-alt"></i>
+                </button>
+            </form>
+        </div>
+
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-align: left; line-height: 1.4;">
+            To allow you to check this layout locally, Quiznapse is running in simulated OAuth environment. If you want to connect to Google's production servers, simply configure credentials in the project's .env file.
+        </div>
+    </div>
+</div>
+
+<style>
+    .main-content {
+        margin-left: 0 !important;
+        padding-top: 20px !important;
+    }
+    .chooser-row:hover {
+        background: rgba(255, 255, 255, 0.03) !important;
+    }
+    .avatar-badge {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        color: white;
+        font-size: 1rem;
+    }
+</style>
+<script>
+    function toggleCustomAccountForm() {
+        const form = document.getElementById('custom-account-form');
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+</script>
+{% endblock %}

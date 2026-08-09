@@ -1,0 +1,39 @@
+{% extends 'quizzes/base.html' %}
+{% load static %}
+
+{% block title %}Login Cancelled | Quiznapse{% endblock %}
+
+{% block content %}
+<div class="auth-container" style="max-width: 440px; margin: 80px auto; padding: 0 20px;">
+    
+    <!-- Title header -->
+    <div style="text-align: center; margin-bottom: 32px;">
+        {% include 'quizzes/includes/logo.html' with size='64' id='login_cancelled' style='margin-bottom: 16px;' %}
+        <h2 style="font-size: 2rem; font-family: 'Outfit', sans-serif;">Login Cancelled</h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 6px;">
+            You decided to cancel the Google sign-in process.
+        </p>
+    </div>
+
+    <!-- Glass card -->
+    <div class="glass-card" style="text-align: center; padding: 32px 24px;">
+        
+        <div style="margin-bottom: 24px; color: var(--text-secondary);">
+            <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--accent-primary); margin-bottom: 16px;"></i>
+            <p>If this was a mistake, or if you want to try a different sign-in method, you can go back to the login page.</p>
+        </div>
+
+        <a href="{% url 'login' %}" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+            <i class="fas fa-arrow-left"></i> Back to Login
+        </a>
+    </div>
+</div>
+
+<style>
+    /* Expand content space when sidebar is absent */
+    .main-content {
+        margin-left: 0 !important;
+        padding-top: 20px !important;
+    }
+</style>
+{% endblock %}

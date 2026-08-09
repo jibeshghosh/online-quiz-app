@@ -1,0 +1,180 @@
+{% extends 'quizzes/base.html' %}
+{% load static %}
+
+{% block title %}Attempting: {{ quiz.title }} | Quiznapse{% endblock %}
+
+{% block content %}
+<div class="quiz-attempt-wrapper" style="max-width: 1100px; margin: 0 auto; padding-bottom: 40px;">
+    
+    <!-- Header Tracker -->
+    <div class="quiz-attempt-header">
+        <div>
+            <h1 style="font-size: 1.6rem; font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-edit" style="color: var(--accent-primary);"></i> {{ quiz.title }}
+            </h1>
+            <span style="color: var(--text-secondary); font-size: 0.85rem;">{{ quiz.category }} &nbsp;•&nbsp; Passing target: {{ quiz.pass_mark }}%</span>
+        </div>
+        <div id="current-index-tracker" style="font-family: 'Outfit', sans-serif; font-weight: 700; color: var(--accent-secondary); font-size: 1.1rem;">
+            Question 1 of {{ questions.count }}
+        </div>
+    </div>
+
+    <!-- Dual Panel Layout -->
+    <div class="quiz-layout">
+        
+        <!-- Left Panel: Form & Question Panels -->
+        <div>
+            <form id="quiz-attempt-form" method="post" action="{% url 'quiz_submit' attempt.id %}" 
+                  data-attempt-id="{{ attempt.id }}" 
+                  data-time-limit-seconds="{{ time_limit_seconds }}"
+                  data-time-remaining="{{ time_remaining }}">
+                {% csrf_token %}
+                
+                <div class="quiz-progress-bar-wrapper">
+                    <div class="quiz-progress-info">
+                        <span>Attempt progress</span>
+                        <span id="quiz-progress-percent">0% answered</span>
+                    </div>
+                    <div class="quiz-progress-bar">
+                        <div id="quiz-progress-fill" class="quiz-progress-fill"></div>
+                    </div>
+                </div>
+
+                <!-- Questions Container -->
+                <div class="glass-card" style="padding: 32px; border-radius: var(--border-radius-md); min-height: 380px; display: flex; flex-direction: column; justify-content: space-between;">
+                    
+                    <div>
+                        {% for question in questions %}
+                            <div class="question-container" data-question-index="{{ forloop.counter0 }}" data-question-id="{{ question.id }}">
+                                <div class="question-text">
+                                    {{ forloop.counter }}. {{ question.question_text }}
+                                </div>
+                                
+                                <div class="options-grid">
+                                    <label class="option-card" data-option="A">
+                                        <div class="option-radio">
+                                            <input type="radio" name="question_{{ question.id }}" value="A" style="display: none;">
+                                        </div>
+                                        <span class="option-label-letter">A</span>
+                                        <span class="option-text-content">{{ question.option_a }}</span>
+                                    </label>
+                                    
+                                    <label class="option-card" data-option="B">
+                                        <div class="option-radio">
+                                            <input type="radio" name="question_{{ question.id }}" value="B" style="display: none;">
+                                        </div>
+                                        <span class="option-label-letter">B</span>
+                                        <span class="option-text-content">{{ question.option_b }}</span>
+                                    </label>
+                                    
+                                    <label class="option-card" data-option="C">
+                                        <div class="option-radio">
+                                            <input type="radio" name="question_{{ question.id }}" value="C" style="display: none;">
+                                        </div>
+                                        <span class="option-label-letter">C</span>
+                                        <span class="option-text-content">{{ question.option_c }}</span>
+                                    </label>
+                                    
+                                    <label class="option-card" data-option="D">
+                                        <div class="option-radio">
+                                            <input type="radio" name="question_{{ question.id }}" value="D" style="display: none;">
+                                        </div>
+                                        <span class="option-label-letter">D</span>
+                                        <span class="option-text-content">{{ question.option_d }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Bottom Nav Panel -->
+                    <div class="quiz-actions">
+                        <button type="button" id="prev-q-btn" class="btn btn-secondary">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </button>
+                        <div style="display: flex; gap: 12px;">
+                            <button type="button" id="skip-q-btn" class="btn btn-secondary">
+                                Skip <i class="fas fa-step-forward" style="font-size: 0.8rem;"></i>
+                            </button>
+                            <button type="button" id="next-q-btn" class="btn btn-primary">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </button>
+                            <button type="button" id="submit-quiz-btn" class="btn btn-success" style="display: none;">
+                                Submit Quiz <i class="fas fa-check-double"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Panel: Timer and Navigator Panel -->
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- Timer Card -->
+            <div class="glass-card timer-container">
+                <div class="quiz-panel-title" style="margin-bottom: 8px;">Time Remaining</div>
+                <div class="timer-dial">
+                    <svg class="timer-svg" viewBox="0 0 140 140">
+                        <circle class="timer-track" cx="70" cy="70" r="60"></circle>
+                        <circle class="timer-fill" cx="70" cy="70" r="60" stroke-dasharray="377" stroke-dashoffset="0"></circle>
+                    </svg>
+                    <span id="timer-text" class="timer-text">00:00</span>
+                </div>
+            </div>
+
+            <!-- Question Navigator Card -->
+            <div class="glass-card">
+                <div class="quiz-panel-title">Question Navigator</div>
+                
+                <div class="navigator-grid">
+                    {% for question in questions %}
+                        <div class="nav-box" data-index="{{ forloop.counter0 }}">
+                            {{ forloop.counter }}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="legend-list">
+                    <div class="legend-item">
+                        <div class="legend-dot leg-active"></div>
+                        <span>Active question</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot leg-answered"></div>
+                        <span>Answered</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot leg-skipped"></div>
+                        <span>Skipped</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot leg-unanswered"></div>
+                        <span>Unanswered</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submit Confirmation Modal Overlay -->
+<div id="submit-confirm-modal" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3 class="modal-title">Submit Quiz?</h3>
+        <p id="modal-unanswered-desc" class="modal-desc">
+            Are you sure you want to finalize your submission? You will not be able to change your selections.
+        </p>
+        <div class="modal-actions">
+            <button type="button" id="modal-cancel" class="btn btn-secondary">Review Answers</button>
+            <button type="button" id="modal-confirm" class="btn btn-success">Yes, Submit</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/quiz.js' %}?v=2"></script>
+{% endblock %}

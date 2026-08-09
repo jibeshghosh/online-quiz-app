@@ -1,0 +1,127 @@
+{% extends 'quizzes/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard | Quiznapse{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <!-- Welcome Banner Card -->
+    <div class="welcome-banner">
+        <div class="welcome-text">
+            <h1>Hello, {{ user.first_name }}!</h1>
+            <p>Ready to sharpen your intellect? Choose a track below or browse the full quiz catalog to challenge yourself.</p>
+        </div>
+        <div class="welcome-badge">
+            <span class="badge-val">{{ profile.completed_attempts_count }}</span>
+            <span class="badge-lbl">Completed</span>
+        </div>
+    </div>
+
+    <!-- Overall Statistics Grid -->
+    <div class="metrics-grid">
+        <div class="glass-card metric-card">
+            <div class="metric-icon">
+                <i class="fas fa-tasks"></i>
+            </div>
+            <div class="metric-info">
+                <div class="metric-value">{{ profile.total_attempts_count }}</div>
+                <div class="metric-label">Total Quiz Attempts</div>
+            </div>
+        </div>
+        <div class="glass-card metric-card">
+            <div class="metric-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="metric-info">
+                <div class="metric-value">{{ profile.average_score }}%</div>
+                <div class="metric-label">Average Score</div>
+            </div>
+        </div>
+        <div class="glass-card metric-card">
+            <div class="metric-icon">
+                <i class="fas fa-award"></i>
+            </div>
+            <div class="metric-info">
+                <div class="metric-value">{{ profile.pass_rate }}%</div>
+                <div class="metric-label">Pass Rate</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Explore Section -->
+    <div class="section-header">
+        <h2 class="section-title">Explore Categories</h2>
+        <a href="{% url 'quiz_list' %}" class="section-link">View All Quizzes <i class="fas fa-arrow-right"></i></a>
+    </div>
+    
+    <div class="categories-grid">
+        {% for cat in categories %}
+            <div class="glass-card category-card cat-{{ cat.name|lower|cut:' ' }}" onclick="window.location.href='{% url 'quiz_list' %}?category={{ cat.name }}'">
+                <div class="category-icon">
+                    <i class="fas fa-{% if cat.icon %}{{ cat.icon }}{% else %}book{% endif %}"></i>
+                </div>
+                <h3>{{ cat.name }}</h3>
+                <p>{{ cat.desc }}</p>
+                <div class="category-stats">
+                    <span><i class="fas fa-folder-open"></i> {{ cat.count }} quizzes available</span>
+                    <span>Completed: {{ cat.completed_count }}</span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Recent Attempts Section -->
+    <div class="section-header">
+        <h2 class="section-title">Recent Activity</h2>
+        <a href="{% url 'my_results' %}" class="section-link">View Full History <i class="fas fa-chevron-right"></i></a>
+    </div>
+
+    <div class="glass-card" style="padding: 0; overflow: hidden; margin-bottom: 40px;">
+        <div class="table-container">
+            {% if recent_attempts %}
+                <table class="quiz-table">
+                    <thead>
+                        <tr>
+                            <th>Quiz Name</th>
+                            <th>Date Taken</th>
+                            <th>Time Used</th>
+                            <th>Score</th>
+                            <th>Accuracy</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for attempt in recent_attempts %}
+                            <tr>
+                                <td style="font-weight: 600; font-family: 'Outfit', sans-serif;">{{ attempt.quiz.title }}</td>
+                                <td style="color: var(--text-secondary);">{{ attempt.completed_at|date:"M d, Y | h:i A" }}</td>
+                                <td style="color: var(--text-secondary);">{{ attempt.time_taken_formatted }}</td>
+                                <td style="font-weight: 500;">{{ attempt.score }} / {{ attempt.quiz.questions.count }}</td>
+                                <td style="font-weight: 600;">{{ attempt.percentage }}%</td>
+                                <td>
+                                    <span class="badge {% if attempt.status == 'Passed' %}badge-success{% else %}badge-danger{% endif %}">
+                                        {{ attempt.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'quiz_result' attempt.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 6px;">
+                                        Details
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon"><i class="fas fa-history"></i></div>
+                    <h3>No recent activity</h3>
+                    <p>It looks like you haven't taken any quizzes yet. Start learning now!</p>
+                    <a href="{% url 'quiz_list' %}" class="btn btn-primary">Take a Quiz</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

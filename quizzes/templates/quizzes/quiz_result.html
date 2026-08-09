@@ -1,0 +1,117 @@
+{% extends 'quizzes/base.html' %}
+{% load static %}
+
+{% block title %}Quiz Results | Quiznapse{% endblock %}
+
+{% block content %}
+<div class="quiz-result-wrapper" style="max-width: 800px; margin: 0 auto; padding-bottom: 40px;">
+    
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 24px; font-size: 0.9rem; color: var(--text-secondary);">
+        <a href="{% url 'dashboard' %}"><i class="fas fa-columns"></i> Dashboard</a> &nbsp;/&nbsp; 
+        <a href="{% url 'quiz_list' %}">Explore Quizzes</a> &nbsp;/&nbsp; 
+        <span style="color: var(--text-primary);">Results</span>
+    </div>
+
+    <div class="glass-card" style="padding: 40px; border-radius: var(--border-radius-lg); text-align: center;">
+        
+        <!-- Score Title Status -->
+        <div class="result-header">
+            <h1 class="result-status-title {% if attempt.status == 'Passed' %}status-passed{% else %}status-failed{% endif %}">
+                {% if attempt.status == 'Passed' %}
+                    <i class="fas fa-check-circle"></i> Congratulations!
+                {% else %}
+                    <i class="fas fa-times-circle"></i> Quiz Failed
+                {% endif %}
+            </h1>
+            <p style="color: var(--text-secondary); font-size: 1.1rem; margin-top: 8px;">
+                You have {% if attempt.status == 'Passed' %}passed{% else %}failed{% endif %} the <strong>{{ attempt.quiz.title }}</strong> quiz.
+            </p>
+        </div>
+
+        <!-- SVG Circular Progress Ring -->
+        <div class="score-ring-container">
+            <div class="score-ring">
+                <svg class="score-svg" viewBox="0 0 200 200">
+                    <circle class="score-track" cx="100" cy="100" r="90"></circle>
+                    <!-- Circumference: 2 * pi * r (90) = 565.48 => 565 -->
+                    <circle id="score-fill-ring" class="score-fill" cx="100" cy="100" r="90" 
+                            stroke-dasharray="565" stroke-dashoffset="565" 
+                            style="stroke: {% if attempt.status == 'Passed' %}#10b981{% else %}#ef4444{% endif %};"></circle>
+                </svg>
+                <div class="score-center-text">
+                    <span id="score-pct-value" class="score-percentage">0%</span>
+                    <div class="score-ratio">{{ attempt.score }} / {{ total }} Qs</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breakdown metrics -->
+        <div class="results-stats-grid" style="border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 32px 0;">
+            <div class="stat-box">
+                <div class="stat-box-value" style="color: var(--success);">{{ correct }}</div>
+                <div class="stat-box-label">Correct</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-value" style="color: var(--danger);">{{ incorrect }}</div>
+                <div class="stat-box-label">Incorrect</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-value" style="color: var(--warning);">{{ skipped }}</div>
+                <div class="stat-box-label">Skipped</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-value" style="color: var(--info);">{{ time_taken_str }}</div>
+                <div class="stat-box-label">Time Spent</div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display: flex; gap: 16px; justify-content: center; margin-top: 36px; flex-wrap: wrap;">
+            <a href="{% url 'quiz_review' attempt.id %}" class="btn btn-primary" style="padding: 12px 28px;">
+                Review Answers <i class="fas fa-tasks"></i>
+            </a>
+            <a href="{% url 'quiz_detail' attempt.quiz.id %}" class="btn btn-secondary" style="padding: 12px 28px;">
+                Retake Quiz <i class="fas fa-redo"></i>
+            </a>
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary" style="padding: 12px 28px;">
+                Dashboard <i class="fas fa-columns"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const pctTarget = parseFloat("{{ attempt.percentage }}");
+        const fillRing = document.getElementById('score-fill-ring');
+        const pctValue = document.getElementById('score-pct-value');
+        
+        const circumference = 565;
+        
+        // Dynamic counter animation
+        let currentPct = 0;
+        const duration = 1200; // ms
+        const steps = 60;
+        const increment = pctTarget / steps;
+        const stepTime = duration / steps;
+        
+        const counterInterval = setInterval(() => {
+            currentPct += increment;
+            if (currentPct >= pctTarget) {
+                currentPct = pctTarget;
+                clearInterval(counterInterval);
+            }
+            pctValue.innerText = Math.round(currentPct) + '%';
+        }, stepTime);
+        
+        // Stroke animation
+        setTimeout(() => {
+            const offset = circumference - (pctTarget / 100 * circumference);
+            fillRing.style.strokeDashoffset = offset;
+        }, 100);
+    });
+</script>
+{% endblock %}

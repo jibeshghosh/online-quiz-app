@@ -1,0 +1,184 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Quiznapse - Modern Online Quiz App{% endblock %}</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Icons (FontAwesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS Design System Stylesheets -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/quiz.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="toast toast-{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}">
+                    <i class="fas fa-{% if message.tags == 'error' %}times-circle{% elif message.tags == 'success' %}check-circle{% elif message.tags == 'warning' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    {% if not user.is_authenticated %}
+        <nav class="public-navbar">
+            <div class="public-navbar-container">
+                <a href="{% url 'landing' %}" class="navbar-brand">
+                    {% include 'quizzes/includes/logo.html' with size='28' id='navbar' %}
+                    <span class="navbar-logo-text">Quiznapse</span>
+                </a>
+                <div class="navbar-actions">
+                    <button id="public-theme-toggle" class="btn btn-secondary theme-toggle-btn">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="{% url 'login' %}" class="btn btn-secondary">Sign In</a>
+                    <a href="{% url 'register' %}" class="btn btn-primary">Get Started</a>
+                </div>
+            </div>
+        </nav>
+    {% endif %}
+
+    <div class="layout-wrapper">
+        {% if user.is_authenticated %}
+            <!-- Desktop Collapsible Sidebar -->
+            <aside id="sidebar" class="sidebar">
+                <a href="{% url 'dashboard' %}" class="sidebar-brand" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                    {% include 'quizzes/includes/logo.html' with size='24' id='sidebar' %}
+                    <span class="sidebar-logo sidebar-logo-text">Quiznapse</span>
+                </a>
+                
+                <ul class="sidebar-menu">
+                    <li class="sidebar-menu-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <a href="{% url 'dashboard' %}">
+                            <span class="sidebar-icon"><i class="fas fa-columns"></i></span>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item {% if request.resolver_match.url_name == 'quiz_list' or request.resolver_match.url_name == 'quiz_detail' or request.resolver_match.url_name == 'quiz_attempt' %}active{% endif %}">
+                        <a href="{% url 'quiz_list' %}">
+                            <span class="sidebar-icon"><i class="fas fa-book-open"></i></span>
+                            <span>Explore Quizzes</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item {% if request.resolver_match.url_name == 'my_results' %}active{% endif %}">
+                        <a href="{% url 'my_results' %}">
+                            <span class="sidebar-icon"><i class="fas fa-history"></i></span>
+                            <span>My Results</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                        <a href="{% url 'profile' %}">
+                            <span class="sidebar-icon"><i class="fas fa-user-circle"></i></span>
+                            <span>Profile & Stats</span>
+                        </a>
+                    </li>
+                    {% if user.is_staff %}
+                    <li class="sidebar-menu-item">
+                        <a href="/admin/" target="_blank">
+                            <span class="sidebar-icon"><i class="fas fa-sliders-h"></i></span>
+                            <span>Admin Portal</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <div class="sidebar-footer">
+                    <button id="sidebar-toggle" class="sidebar-footer-btn" style="border: none; background: transparent; display: flex; align-items: center; justify-content: flex-start; cursor: pointer; padding: 12px 16px;">
+                        <span class="sidebar-icon"><i class="fas fa-chevron-left"></i></span>
+                        <span>Collapse Menu</span>
+                    </button>
+                    <!-- Log out is now in the top profile dropdown, but we can keep it here or remove it. Let's keep it as an option in case -->
+                </div>
+            </aside>
+
+            <!-- Mobile Navbar (Shown only on small screens) -->
+            <header class="mobile-header">
+                <button id="mobile-toggle" class="mobile-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a href="{% url 'dashboard' %}" class="mobile-brand" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+                    {% include 'quizzes/includes/logo.html' with size='20' id='mobile' %}
+                    <span>Quiznapse</span>
+                </a>
+                <button id="mobile-theme-toggle" class="mobile-toggle" style="background: transparent; border: none; font-size: 1.2rem;">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </header>
+
+            <!-- Sidebar Overlay for Mobile -->
+            <div id="sidebar-overlay" class="sidebar-overlay"></div>
+        {% endif %}
+
+        <!-- Main Content Area -->
+        <main class="main-content {% if not user.is_authenticated %}public-content{% endif %}">
+            {% if user.is_authenticated %}
+                <header class="top-header">
+                    <form action="{% url 'quiz_list' %}" method="get" class="header-search">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" name="search" placeholder="Search quizzes..." class="search-input" value="{{ request.GET.search }}">
+                    </form>
+                    <div class="header-actions">
+                        <button id="theme-toggle" class="btn btn-icon theme-toggle-btn">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        
+                        <div class="dropdown-container">
+                            <button class="btn btn-icon dropdown-trigger" id="notification-btn">
+                                <i class="fas fa-bell"></i>
+                                <span class="notification-badge">3</span>
+                            </button>
+                            <div class="dropdown-menu notification-menu">
+                                <div class="dropdown-header">Notifications</div>
+                                <div class="dropdown-item">Welcome to Quiznapse!</div>
+                                <div class="dropdown-item">You passed "Python Basics".</div>
+                            </div>
+                        </div>
+
+                        <div class="dropdown-container">
+                            <button class="profile-trigger dropdown-trigger" id="profile-btn">
+                                <div class="avatar">{{ user.username|make_list|first|upper }}</div>
+                                <i class="fas fa-chevron-down profile-chevron"></i>
+                            </button>
+                            <div class="dropdown-menu profile-menu">
+                                <div class="profile-header">
+                                    <span class="profile-name">{{ user.username }}</span>
+                                    <span class="profile-email">{{ user.email }}</span>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <a href="{% url 'profile' %}" class="dropdown-item"><i class="fas fa-user"></i> My Profile</a>
+                                <a href="{% url 'my_results' %}" class="dropdown-item"><i class="fas fa-history"></i> My Results</a>
+                                <div class="dropdown-divider"></div>
+                                <form action="{% url 'logout' %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger" style="width: 100%; text-align: left; background: none; border: none; font: inherit; cursor: pointer;"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            {% endif %}
+            
+            <div class="content-container">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/theme.js' %}?v=4"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

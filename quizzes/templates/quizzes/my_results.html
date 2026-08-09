@@ -1,0 +1,137 @@
+{% extends 'quizzes/base.html' %}
+{% load static %}
+
+{% block title %}My Quiz History | Quiznapse{% endblock %}
+
+{% block content %}
+<div class="history-wrapper" style="max-width: 1000px; margin: 0 auto; padding-bottom: 40px;">
+    
+    <div class="section-header">
+        <h1 class="section-title">My Results</h1>
+        <p style="color: var(--text-secondary);">Track your performance over time and review previous submissions.</p>
+    </div>
+
+    <!-- Summary Metrics Panel -->
+    <div class="metrics-grid">
+        <div class="glass-card metric-card">
+            <div class="metric-icon"><i class="fas fa-history" style="color: var(--info);"></i></div>
+            <div class="metric-info">
+                <div class="metric-value">{{ stats.total_completed }}</div>
+                <div class="metric-label">Quizzes Completed</div>
+            </div>
+        </div>
+        <div class="glass-card metric-card">
+            <div class="metric-icon"><i class="fas fa-percentage" style="color: var(--accent-secondary);"></i></div>
+            <div class="metric-info">
+                <div class="metric-value">{{ stats.avg_score }}%</div>
+                <div class="metric-label">Average Score</div>
+            </div>
+        </div>
+        <div class="glass-card metric-card">
+            <div class="metric-icon"><i class="fas fa-award" style="color: var(--success);"></i></div>
+            <div class="metric-info">
+                <div class="metric-value">{{ stats.pass_rate }}%</div>
+                <div class="metric-label">Overall Pass Rate</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Panel -->
+    <div class="glass-card" style="padding: 20px; margin-bottom: 32px; border-radius: var(--border-radius-md);">
+        <form method="get" action="{% url 'my_results' %}" class="filters-bar">
+            <!-- Category Filter -->
+            <select name="category" class="filter-dropdown">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                    <option value="{{ cat }}" {% if category_filter == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+            
+            <!-- Status Filter -->
+            <select name="status" class="filter-dropdown">
+                <option value="">All Statuses</option>
+                <option value="Passed" {% if status_filter == 'Passed' %}selected{% endif %}>Passed</option>
+                <option value="Failed" {% if status_filter == 'Failed' %}selected{% endif %}>Failed</option>
+            </select>
+            
+            <!-- Date Filter -->
+            <select name="date" class="filter-dropdown">
+                <option value="">All Time</option>
+                <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+                <option value="week" {% if date_filter == 'week' %}selected{% endif %}>Last 7 Days</option>
+                <option value="month" {% if date_filter == 'month' %}selected{% endif %}>Last 30 Days</option>
+            </select>
+            
+            <button type="submit" class="btn btn-primary" style="padding: 12px 20px;">
+                Apply Filters
+            </button>
+            
+            {% if category_filter or status_filter or date_filter %}
+                <a href="{% url 'my_results' %}" class="btn btn-secondary" style="padding: 12px 20px;">
+                    Clear
+                </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- History Table -->
+    <div class="glass-card" style="padding: 0; overflow: hidden;">
+        <div class="table-container">
+            {% if attempts %}
+                <table class="quiz-table">
+                    <thead>
+                        <tr>
+                            <th>Quiz Name</th>
+                            <th>Category</th>
+                            <th>Date Attempted</th>
+                            <th>Time Spent</th>
+                            <th>Score</th>
+                            <th>Accuracy</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for attempt in attempts %}
+                            <tr>
+                                <td style="font-weight: 600; font-family: 'Outfit', sans-serif;">{{ attempt.quiz.title }}</td>
+                                <td>
+                                    <span class="badge badge-info" style="font-size: 0.7rem; padding: 2px 8px;">
+                                        {{ attempt.quiz.category }}
+                                    </span>
+                                </td>
+                                <td style="color: var(--text-secondary);">{{ attempt.completed_at|date:"M d, Y | h:i A" }}</td>
+                                <td style="color: var(--text-secondary);">{{ attempt.time_taken_formatted }}</td>
+                                <td style="font-weight: 500;">{{ attempt.score }} / {{ attempt.quiz.questions.count }}</td>
+                                <td style="font-weight: 600;">{{ attempt.percentage }}%</td>
+                                <td>
+                                    <span class="badge {% if attempt.status == 'Passed' %}badge-success{% else %}badge-danger{% endif %}">
+                                        {{ attempt.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 8px;">
+                                        <a href="{% url 'quiz_result' attempt.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 6px;">
+                                            Summary
+                                        </a>
+                                        <a href="{% url 'quiz_review' attempt.id %}" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 6px;">
+                                            Review
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon"><i class="fas fa-history"></i></div>
+                    <h3>No results found</h3>
+                    <p>We couldn't find any completed quiz attempts matching your filter choices.</p>
+                    <a href="{% url 'quiz_list' %}" class="btn btn-secondary">Browse Quizzes</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

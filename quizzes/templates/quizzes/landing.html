@@ -1,0 +1,106 @@
+{% extends 'quizzes/base.html' %}
+{% load static %}
+
+{% block title %}Welcome to Quiznapse - Master New Skills{% endblock %}
+
+{% block content %}
+<div class="landing-container" style="max-width: 1200px; margin: 0 auto; padding: 60px 20px; min-height: calc(100vh - 80px); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+    
+    <!-- Hero Header -->
+    <div class="hero-section" style="margin-bottom: 50px; animation: slideLeft 0.5s ease-out;">
+        {% include 'quizzes/includes/logo.html' with size='80' id='landing' style='margin-bottom: 24px;' %}
+        <h1 style="font-size: 3.5rem; font-weight: 800; line-height: 1.15; margin-bottom: 20px; color: var(--text-primary);">
+            Supercharge Your Mind <br>With <span style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Quiznapse</span>
+        </h1>
+        <p style="font-size: 1.25rem; color: var(--text-secondary); max-width: 700px; margin: 0 auto 36px auto; line-height: 1.6;">
+            The ultimate responsive quiz platform. Test your knowledge in programming, science, mathematics, general trivia, and logical reasoning with real-time countdown limits and automatic grading.
+        </p>
+        
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'register' %}" class="btn btn-primary" style="padding: 14px 32px; font-size: 1.1rem;">
+                Get Started Free <i class="fas fa-arrow-right"></i>
+            </a>
+            <a href="{% url 'login' %}" class="btn btn-secondary" style="padding: 14px 32px; font-size: 1.1rem;">
+                Sign In
+            </a>
+        </div>
+    </div>
+
+    <!-- Glowing Glassmorphic Stats Grid -->
+    <div class="glass-card" style="width: 100%; max-width: 900px; padding: 40px; margin-bottom: 60px; border-radius: var(--border-radius-lg);">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px;">
+            <div>
+                <span style="display: block; font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--accent-primary); margin-bottom: 8px;">{{ stats.total_quizzes }}</span>
+                <span style="font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Active Quizzes</span>
+            </div>
+            <div>
+                <span style="display: block; font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--accent-secondary); margin-bottom: 8px;">{{ stats.total_questions }}</span>
+                <span style="font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Total MCQs</span>
+            </div>
+            <div>
+                <span style="display: block; font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--success); margin-bottom: 8px;">{{ stats.total_users }}</span>
+                <span style="font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Registered Users</span>
+            </div>
+            <div>
+                <span style="display: block; font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--info); margin-bottom: 8px;">{{ stats.total_attempts }}</span>
+                <span style="font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Attempts Logged</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Teaser Grid -->
+    <div style="width: 100%;">
+        <h2 style="font-size: 1.8rem; margin-bottom: 32px;">Explore Learning Tracks</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+            <a class="glass-card" style="display: block; padding: 24px; border-radius: var(--border-radius-md); text-align: left; border-left: 3px solid #3b82f6; cursor: pointer;" href="{% url 'login' %}?next={% url 'quiz_list' %}%3Fcategory=Programming">
+                <i class="fas fa-code" style="font-size: 1.5rem; color: #3b82f6; margin-bottom: 12px;"></i>
+                <h4 style="font-size: 1.1rem; margin-bottom: 6px;">Programming</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">Python syntax, mutable collections, structures.</p>
+            </a>
+            <a class="glass-card" style="display: block; padding: 24px; border-radius: var(--border-radius-md); text-align: left; border-left: 3px solid #ec4899; cursor: pointer;" href="{% url 'login' %}?next={% url 'quiz_list' %}%3Fcategory=Science">
+                <i class="fas fa-atom" style="font-size: 1.5rem; color: #ec4899; margin-bottom: 12px;"></i>
+                <h4 style="font-size: 1.1rem; margin-bottom: 6px;">Science</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">Cosmology, orbits, atmospheric chemistry.</p>
+            </a>
+            <a class="glass-card" style="display: block; padding: 24px; border-radius: var(--border-radius-md); text-align: left; border-left: 3px solid #10b981; cursor: pointer;" href="{% url 'login' %}?next={% url 'quiz_list' %}%3Fcategory=Mathematics">
+                <i class="fas fa-calculator" style="font-size: 1.5rem; color: #10b981; margin-bottom: 12px;"></i>
+                <h4 style="font-size: 1.1rem; margin-bottom: 6px;">Mathematics</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">Equations, derivatives, trig angles, geometries.</p>
+            </a>
+            <a class="glass-card" style="display: block; padding: 24px; border-radius: var(--border-radius-md); text-align: left; border-left: 3px solid #f59e0b; cursor: pointer;" href="{% url 'login' %}?next={% url 'quiz_list' %}%3Fcategory=General%20Knowledge">
+                <i class="fas fa-globe" style="font-size: 1.5rem; color: #f59e0b; margin-bottom: 12px;"></i>
+                <h4 style="font-size: 1.1rem; margin-bottom: 6px;">Gen. Knowledge</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">Geography, art history, capital details.</p>
+            </a>
+            <a class="glass-card" style="display: block; padding: 24px; border-radius: var(--border-radius-md); text-align: left; border-left: 3px solid #f43f5e; cursor: pointer;" href="{% url 'login' %}?next={% url 'quiz_list' %}%3Fcategory=Aptitude">
+                <i class="fas fa-brain" style="font-size: 1.5rem; color: #f43f5e; margin-bottom: 12px;"></i>
+                <h4 style="font-size: 1.1rem; margin-bottom: 6px;">Aptitude</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">Logical reasoning, clocks, speeds, patterns.</p>
+            </a>
+            <a class="glass-card" style="display: block; padding: 24px; border-radius: var(--border-radius-md); text-align: left; border-left: 3px solid #d97706; cursor: pointer;" href="{% url 'login' %}?next={% url 'quiz_list' %}%3Fcategory=History">
+                <i class="fas fa-monument" style="font-size: 1.5rem; color: #d97706; margin-bottom: 12px;"></i>
+                <h4 style="font-size: 1.1rem; margin-bottom: 6px;">History</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">World wars, empires, and ancient civilisations.</p>
+            </a>
+            <a class="glass-card" style="display: block; padding: 24px; border-radius: var(--border-radius-md); text-align: left; border-left: 3px solid #8b5cf6; cursor: pointer;" href="{% url 'login' %}?next={% url 'quiz_list' %}%3Fcategory=Literature">
+                <i class="fas fa-book-open" style="font-size: 1.5rem; color: #8b5cf6; margin-bottom: 12px;"></i>
+                <h4 style="font-size: 1.1rem; margin-bottom: 6px;">Literature</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">Dystopian novels, poetry, classic playwrights.</p>
+            </a>
+            <a class="glass-card" style="display: block; padding: 24px; border-radius: var(--border-radius-md); text-align: left; border-left: 3px solid #2563eb; cursor: pointer;" href="{% url 'login' %}?next={% url 'quiz_list' %}%3Fcategory=Sports">
+                <i class="fas fa-trophy" style="font-size: 1.5rem; color: #2563eb; margin-bottom: 12px;"></i>
+                <h4 style="font-size: 1.1rem; margin-bottom: 6px;">Sports</h4>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">Olympics, soccer records, and global leagues.</p>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Adjust landing container when sidebar is absent */
+    .main-content {
+        margin-left: 0 !important;
+        padding-top: 20px !important;
+    }
+</style>
+{% endblock %}
