@@ -514,65 +514,128 @@ def oauth_choose_account(request, provider='google'):
     return render(request, 'quizzes/oauth_choose.html', context)
 
 
+import random
+import time
 import logging
-from django.contrib.auth import views as auth_views
+from django.core.mail import send_mail
 from django.conf import settings
-from .forms import CustomPasswordResetForm
+from .forms import RequestOTPForm, VerifyOTPResetForm
 
 logger = logging.getLogger(__name__)
 
 
-class CustomPasswordResetView(auth_views.PasswordResetView):
-    form_class = CustomPasswordResetForm
-    template_name = 'quizzes/password_reset_form.html'
-    email_template_name = 'quizzes/password_reset_email.html'
-    subject_template_name = 'quizzes/password_reset_subject.txt'
+def password_reset_request(request):
+    """Step 1: User enters email or username -> System generates 6-digit OTP code."""
+    if request.method == 'POST':
+        form = RequestOTPForm(request.POST)
+        if form.is_valid():
+            val = form.cleaned_data['email_or_username']
+            user = User.objects.filter(
+                Q(email__iexact=val) | Q(username__iexact=val),
+                is_active=True
+            ).first()
 
-    def form_valid(self, form):
-        host = self.request.get_host()
-        is_secure = (
-            self.request.is_secure()
-            or self.request.META.get('HTTP_X_FORWARDED_PROTO') == 'https'
-            or 'onrender.com' in host.lower()
-        )
+            if user:
+                otp_code = str(random.randint(100000, 999999))
+                request.session['reset_otp'] = otp_code
+                request.session['reset_user_id'] = user.id
+                request.session['reset_otp_timestamp'] = time.time()
+                request.session['reset_user_identifier'] = user.email or user.username
 
-        opts = {
-            'use_https': is_secure,
-            'domain_override': host,
-            'email_template_name': self.email_template_name,
-            'subject_template_name': self.subject_template_name,
-            'request': self.request,
-            'html_email_template_name': self.html_email_template_name,
-            'extra_email_context': self.extra_email_context,
-            'from_email': getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None),
-        }
+                backend = getattr(settings, 'EMAIL_BACKEND', '')
+                is_smtp = 'smtp' in backend.lower() and bool(getattr(settings, 'EMAIL_HOST_USER', ''))
 
-        backend = getattr(settings, 'EMAIL_BACKEND', '')
-        is_smtp = 'smtp' in backend.lower() and bool(getattr(settings, 'EMAIL_HOST_USER', ''))
-
-        try:
-            form.save(**opts)
-        except Exception as e:
-            logger.error(f"Error sending password reset email: {e}")
-            if is_smtp:
-                messages.error(
-                    self.request,
-                    f"Unable to send reset email due to SMTP connection error ({e}). Please check your Render EMAIL_HOST_USER and EMAIL_HOST_PASSWORD environment variables."
+                subject = "Your Quiznapse Password Reset Code"
+                message_body = (
+                    f"Hello {user.get_full_name() or user.username},\n\n"
+                    f"Your 6-digit OTP code to reset your Quiznapse account password is:\n\n"
+                    f"  {otp_code}\n\n"
+                    f"This OTP code is valid for 10 minutes. If you did not request this password reset, please ignore this email.\n\n"
+                    f"Best regards,\nQuiznapse Team"
                 )
+                from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', 'noreply@quiznapse.com')
+
+                email_sent = False
+                if user.email:
+                    try:
+                        send_mail(subject, message_body, from_email, [user.email], fail_silently=False)
+                        email_sent = True
+                    except Exception as e:
+                        logger.error(f"Error dispatching OTP email via SMTP: {e}")
+
+                if email_sent:
+                    messages.success(request, f"A 6-digit OTP code has been sent to {user.email}. Enter the code below to reset your password.")
+                else:
+                    if is_smtp and user.email:
+                        messages.warning(
+                            request,
+                            f"SMTP Delivery failed. Console Mode Active: Your password reset OTP code is [{otp_code}]."
+                        )
+                    else:
+                        messages.info(
+                            request,
+                            f"OTP Code generated! Your reset OTP is [{otp_code}]. (Note: Live SMTP credentials EMAIL_HOST_USER & EMAIL_HOST_PASSWORD are not set on Render, so use code [{otp_code}])."
+                        )
+
+                return redirect('password_reset_verify')
+    else:
+        form = RequestOTPForm()
+
+    return render(request, 'quizzes/password_reset_form.html', {'form': form})
+
+
+def password_reset_verify(request):
+    """Step 2: User inputs 6-digit OTP + New Password -> Account password updated."""
+    otp_in_session = request.session.get('reset_otp')
+    user_id_in_session = request.session.get('reset_user_id')
+    otp_time = request.session.get('reset_otp_timestamp')
+    user_identifier = request.session.get('reset_user_identifier', '')
+
+    if not otp_in_session or not user_id_in_session:
+        messages.error(request, "No active password reset session found. Please request a new OTP code.")
+        return redirect('password_reset')
+
+    if otp_time and (time.time() - otp_time > 600):
+        request.session.pop('reset_otp', None)
+        request.session.pop('reset_user_id', None)
+        request.session.pop('reset_otp_timestamp', None)
+        messages.error(request, "The OTP code has expired (valid for 10 minutes). Please request a new OTP code.")
+        return redirect('password_reset')
+
+    if request.method == 'POST':
+        form = VerifyOTPResetForm(request.POST)
+        if form.is_valid():
+            submitted_otp = form.cleaned_data['otp']
+            new_password = form.cleaned_data['new_password']
+
+            if submitted_otp != otp_in_session:
+                form.add_error('otp', "Invalid OTP code. Please check the code and try again.")
             else:
-                messages.error(
-                    self.request,
-                    f"Password reset link generation error: {e}"
-                )
-            return self.form_invalid(form)
+                try:
+                    user = User.objects.get(id=user_id_in_session, is_active=True)
+                    user.set_password(new_password)
+                    user.save()
 
-        if not is_smtp:
-            messages.info(
-                self.request,
-                "Password reset link generated in Console mode! Note: Real SMTP credentials (EMAIL_HOST_USER & EMAIL_HOST_PASSWORD) are not configured on Render, so the reset link was output to server logs."
-            )
+                    request.session.pop('reset_otp', None)
+                    request.session.pop('reset_user_id', None)
+                    request.session.pop('reset_otp_timestamp', None)
+                    request.session.pop('reset_user_identifier', None)
 
-        return redirect(self.get_success_url())
+                    messages.success(request, "Your password has been updated successfully! Please sign in with your new password.")
+                    return redirect('login')
+                except User.DoesNotExist:
+                    messages.error(request, "User account not found or inactive. Please try again.")
+                    return redirect('password_reset')
+    else:
+        form = VerifyOTPResetForm()
+
+    context = {
+        'form': form,
+        'user_identifier': user_identifier,
+        'session_otp': otp_in_session if not getattr(settings, 'EMAIL_HOST_USER', '') else None
+    }
+    return render(request, 'quizzes/password_reset_verify.html', context)
+
 
 
 

@@ -20,19 +20,9 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     
 
-    # Password Reset URLs
-    path('password-reset/', views.CustomPasswordResetView.as_view(), name='password_reset'),
-    
-    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(
-        template_name='quizzes/password_reset_done.html'
-    ), name='password_reset_done'),
-    
-    path('password-reset-confirm/<str:uidb64>/<str:token>/', auth_views.PasswordResetConfirmView.as_view(
-        template_name='quizzes/password_reset_confirm.html'
-    ), name='password_reset_confirm'),
-    
-    path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(
-        template_name='quizzes/password_reset_complete.html'
-    ), name='password_reset_complete'),
+    # Password Reset OTP URLs
+    path('password-reset/', views.password_reset_request, name='password_reset'),
+    path('password-reset/verify/', views.password_reset_verify, name='password_reset_verify'),
+
 ]
 
