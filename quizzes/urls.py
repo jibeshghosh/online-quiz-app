@@ -20,9 +20,5 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     
 
-    # Password Reset OTP URLs
-    path('password-reset/', views.password_reset_request, name='password_reset'),
-    path('password-reset/verify/', views.password_reset_verify, name='password_reset_verify'),
-
 ]
 

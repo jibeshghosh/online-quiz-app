@@ -96,37 +96,7 @@ class QuizAppTests(TestCase):
         self.assertEqual(profile.average_score, 100.0)
         self.assertEqual(profile.pass_rate, 100.0)
 
-    def test_password_reset_page(self):
-        """Verify the password reset entry form renders successfully."""
-        response = self.client.get(reverse('password_reset'))
-        self.assertEqual(response.status_code, 200)
 
-    def test_password_reset_otp_request(self):
-        """Verify submitting email generates 6-digit OTP in session and redirects to verify page."""
-        response = self.client.post(reverse('password_reset'), {'email_or_username': 'test@example.com'})
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('password_reset_verify'))
-        self.assertIn('reset_otp', self.client.session)
-        self.assertEqual(len(self.client.session['reset_otp']), 6)
-
-    def test_password_reset_otp_verify_success(self):
-        """Verify submitting correct OTP updates user password successfully."""
-        # Step 1: Request OTP
-        self.client.post(reverse('password_reset'), {'email_or_username': 'testuser'})
-        otp_code = self.client.session['reset_otp']
-
-        # Step 2: Verify OTP and submit new password
-        response = self.client.post(reverse('password_reset_verify'), {
-            'otp': otp_code,
-            'new_password': 'BrandNewPassword123!',
-            'confirm_password': 'BrandNewPassword123!'
-        })
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('login'))
-
-        # Verify user can log in with new password
-        self.user.refresh_from_db()
-        self.assertTrue(self.user.check_password('BrandNewPassword123!'))
 
     def test_social_auth_google_url(self):
         """Verify Google login provider renders chooser page successfully."""
