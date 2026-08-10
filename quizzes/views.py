@@ -556,25 +556,30 @@ def password_reset_request(request):
                 from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', 'noreply@quiznapse.com')
 
                 email_sent = False
+                smtp_error_detail = None
+
                 if user.email:
                     try:
                         send_mail(subject, message_body, from_email, [user.email], fail_silently=False)
                         email_sent = True
                     except Exception as e:
                         logger.error(f"Error dispatching OTP email via SMTP: {e}")
+                        smtp_error_detail = str(e)
+                else:
+                    smtp_error_detail = "User account has no registered email address on file."
 
                 if email_sent:
                     messages.success(request, f"A 6-digit OTP code has been sent to {user.email}. Enter the code below to reset your password.")
                 else:
-                    if is_smtp and user.email:
+                    if is_smtp:
                         messages.warning(
                             request,
-                            f"SMTP Delivery failed. Console Mode Active: Your password reset OTP code is [{otp_code}]."
+                            f"Live SMTP delivery failed ({smtp_error_detail}). Demonstration Mode Active: Use OTP code [{otp_code}] below to reset your password."
                         )
                     else:
                         messages.info(
                             request,
-                            f"OTP Code generated! Your reset OTP is [{otp_code}]. (Note: Live SMTP credentials EMAIL_HOST_USER & EMAIL_HOST_PASSWORD are not set on Render, so use code [{otp_code}])."
+                            f"OTP Code generated! [{otp_code}]. (Note: EMAIL_HOST_USER & EMAIL_HOST_PASSWORD environment variables are not set, so use code [{otp_code}])."
                         )
 
                 return redirect('password_reset_verify')

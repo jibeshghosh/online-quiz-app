@@ -225,11 +225,17 @@ else:
 
 EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 't')
 EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False').lower() in ('true', '1', 't')
-EMAIL_TIMEOUT = 5  # 5-second socket timeout to prevent server hanging and 500 timeouts
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'Quiznapse <noreply@quiznapse.com>')
+EMAIL_USE_TLS = False if EMAIL_USE_SSL else os.environ.get('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 't')
+EMAIL_TIMEOUT = 10
+
+if EMAIL_HOST_USER:
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', f'Quiznapse <{EMAIL_HOST_USER}>')
+else:
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Quiznapse <noreply@quiznapse.com>')
+
 SERVER_EMAIL = os.environ.get('SERVER_EMAIL', DEFAULT_FROM_EMAIL)
+
 
 
 # Required by django-allauth
