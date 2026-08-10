@@ -73,18 +73,19 @@ class CustomPasswordResetForm(PasswordResetForm):
         email = self.cleaned_data.get('email', '').strip()
         users = list(self.get_users(email))
         if not users:
-            raise forms.ValidationError("No registered active user account was found with that email address or username.")
+            raise forms.ValidationError("No active user account with a valid email address was found for that email or username.")
         return email
 
     def get_users(self, email):
         """
-        Given an email or username, return matching active users.
+        Given an email address or username, return matching active users who have a valid email configured.
         Removes unusable password restriction so all active users can reset/set their password.
         """
         email = email.strip()
         active_users = User.objects.filter(
             Q(email__iexact=email) | Q(username__iexact=email),
             is_active=True
-        )
+        ).exclude(email='')
         return list(active_users)
+
 

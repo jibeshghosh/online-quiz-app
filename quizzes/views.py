@@ -521,6 +521,7 @@ from .forms import CustomPasswordResetForm
 
 logger = logging.getLogger(__name__)
 
+
 class CustomPasswordResetView(auth_views.PasswordResetView):
     form_class = CustomPasswordResetForm
     template_name = 'quizzes/password_reset_form.html'
@@ -529,8 +530,12 @@ class CustomPasswordResetView(auth_views.PasswordResetView):
 
     def form_valid(self, form):
         host = self.request.get_host()
-        is_secure = self.request.is_secure() or 'onrender.com' in host.lower() or self.request.META.get('HTTP_X_FORWARDED_PROTO') == 'https'
-        
+        is_secure = (
+            self.request.is_secure()
+            or self.request.META.get('HTTP_X_FORWARDED_PROTO') == 'https'
+            or 'onrender.com' in host.lower()
+        )
+
         opts = {
             'use_https': is_secure,
             'domain_override': host,
@@ -543,28 +548,32 @@ class CustomPasswordResetView(auth_views.PasswordResetView):
         }
 
         backend = getattr(settings, 'EMAIL_BACKEND', '')
-        if 'console' in backend.lower() or not getattr(settings, 'EMAIL_HOST_USER', ''):
-            try:
-                form.save(**opts)
-            except Exception as e:
-                logger.error(f"Console email error: {e}")
-            messages.info(
-                self.request,
-                "Password reset link generated! Note: SMTP environment variables EMAIL_HOST_USER & EMAIL_HOST_PASSWORD are not set on Render, so the email link was output to server logs."
-            )
-            return redirect(self.get_success_url())
+        is_smtp = 'smtp' in backend.lower() and bool(getattr(settings, 'EMAIL_HOST_USER', ''))
 
         try:
             form.save(**opts)
         except Exception as e:
-            logger.error(f"Error attempting to send password reset email via SMTP: {e}")
-            messages.error(
-                self.request,
-                f"SMTP Delivery Failure ({e}). Please check your Render EMAIL_HOST_USER and EMAIL_HOST_PASSWORD variables."
-            )
+            logger.error(f"Error sending password reset email: {e}")
+            if is_smtp:
+                messages.error(
+                    self.request,
+                    f"Unable to send reset email due to SMTP connection error ({e}). Please check your Render EMAIL_HOST_USER and EMAIL_HOST_PASSWORD environment variables."
+                )
+            else:
+                messages.error(
+                    self.request,
+                    f"Password reset link generation error: {e}"
+                )
             return self.form_invalid(form)
 
+        if not is_smtp:
+            messages.info(
+                self.request,
+                "Password reset link generated in Console mode! Note: Real SMTP credentials (EMAIL_HOST_USER & EMAIL_HOST_PASSWORD) are not configured on Render, so the reset link was output to server logs."
+            )
+
         return redirect(self.get_success_url())
+
 
 
 

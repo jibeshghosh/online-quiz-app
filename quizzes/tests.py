@@ -101,6 +101,24 @@ class QuizAppTests(TestCase):
         response = self.client.get(reverse('password_reset'))
         self.assertEqual(response.status_code, 200)
 
+    def test_password_reset_post_email(self):
+        """Verify submitting password reset form with email generates reset link and redirects."""
+        response = self.client.post(reverse('password_reset'), {'email': 'test@example.com'})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('password_reset_done'))
+
+    def test_password_reset_post_username(self):
+        """Verify submitting password reset form with username generates reset link and redirects."""
+        response = self.client.post(reverse('password_reset'), {'email': 'testuser'})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('password_reset_done'))
+
+    def test_password_reset_invalid_user(self):
+        """Verify submitting non-existent email/username returns validation error."""
+        response = self.client.post(reverse('password_reset'), {'email': 'nonexistentuser'})
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response.context['form'], 'email', 'No active user account with a valid email address was found for that email or username.')
+
     def test_social_auth_google_url(self):
         """Verify Google login provider renders chooser page successfully."""
         response = self.client.get(reverse('google_login_mock'))
@@ -110,4 +128,5 @@ class QuizAppTests(TestCase):
         """Verify GitHub login provider renders chooser page successfully."""
         response = self.client.get(reverse('github_login_mock'))
         self.assertEqual(response.status_code, 200)
+
 
