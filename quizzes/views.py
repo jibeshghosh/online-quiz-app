@@ -539,6 +539,7 @@ class CustomPasswordResetView(auth_views.PasswordResetView):
             'request': self.request,
             'html_email_template_name': self.html_email_template_name,
             'extra_email_context': self.extra_email_context,
+            'from_email': getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None),
         }
 
         backend = getattr(settings, 'EMAIL_BACKEND', '')
