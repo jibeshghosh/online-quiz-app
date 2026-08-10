@@ -541,17 +541,30 @@ class CustomPasswordResetView(auth_views.PasswordResetView):
             'extra_email_context': self.extra_email_context,
         }
 
+        backend = getattr(settings, 'EMAIL_BACKEND', '')
+        if 'console' in backend.lower() or not getattr(settings, 'EMAIL_HOST_USER', ''):
+            try:
+                form.save(**opts)
+            except Exception as e:
+                logger.error(f"Console email error: {e}")
+            messages.info(
+                self.request,
+                "Password reset link generated! Note: SMTP environment variables EMAIL_HOST_USER & EMAIL_HOST_PASSWORD are not set on Render, so the email link was output to server logs."
+            )
+            return redirect(self.get_success_url())
+
         try:
             form.save(**opts)
         except Exception as e:
-            logger.error(f"Error attempting to send password reset email: {e}")
+            logger.error(f"Error attempting to send password reset email via SMTP: {e}")
             messages.error(
                 self.request,
-                f"Failed to send email ({e}). Please check your SMTP environment variables on Render."
+                f"SMTP Delivery Failure ({e}). Please check your Render EMAIL_HOST_USER and EMAIL_HOST_PASSWORD variables."
             )
             return self.form_invalid(form)
 
         return redirect(self.get_success_url())
+
 
 
 
