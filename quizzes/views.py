@@ -514,6 +514,46 @@ def oauth_choose_account(request, provider='google'):
     return render(request, 'quizzes/oauth_choose.html', context)
 
 
+import logging
+from django.contrib.auth import views as auth_views
+from django.conf import settings
+from .forms import CustomPasswordResetForm
+
+logger = logging.getLogger(__name__)
+
+class CustomPasswordResetView(auth_views.PasswordResetView):
+    form_class = CustomPasswordResetForm
+    template_name = 'quizzes/password_reset_form.html'
+    email_template_name = 'quizzes/password_reset_email.html'
+    subject_template_name = 'quizzes/password_reset_subject.txt'
+
+    def form_valid(self, form):
+        host = self.request.get_host()
+        is_secure = self.request.is_secure() or 'onrender.com' in host.lower() or self.request.META.get('HTTP_X_FORWARDED_PROTO') == 'https'
+        
+        opts = {
+            'use_https': is_secure,
+            'domain_override': host,
+            'email_template_name': self.email_template_name,
+            'subject_template_name': self.subject_template_name,
+            'request': self.request,
+            'html_email_template_name': self.html_email_template_name,
+            'extra_email_context': self.extra_email_context,
+        }
+
+        try:
+            form.save(**opts)
+        except Exception as e:
+            logger.error(f"Error attempting to send password reset email: {e}")
+            messages.error(
+                self.request,
+                f"Failed to send email ({e}). Please check your SMTP environment variables on Render."
+            )
+            return self.form_invalid(form)
+
+        return redirect(self.get_success_url())
+
+
 
 
 

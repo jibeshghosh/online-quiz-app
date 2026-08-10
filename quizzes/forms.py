@@ -54,3 +54,37 @@ class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['bio']
+
+
+from django.contrib.auth.forms import PasswordResetForm
+from django.db.models import Q
+
+class CustomPasswordResetForm(PasswordResetForm):
+    email = forms.CharField(
+        max_length=254,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter registered email or username',
+            'autofocus': True
+        })
+    )
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip()
+        users = list(self.get_users(email))
+        if not users:
+            raise forms.ValidationError("No registered active user account was found with that email address or username.")
+        return email
+
+    def get_users(self, email):
+        """
+        Given an email or username, return matching active users.
+        Removes unusable password restriction so all active users can reset/set their password.
+        """
+        email = email.strip()
+        active_users = User.objects.filter(
+            Q(email__iexact=email) | Q(username__iexact=email),
+            is_active=True
+        )
+        return list(active_users)
+
