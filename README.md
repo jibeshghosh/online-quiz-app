@@ -140,3 +140,22 @@ To connect the application to a MySQL database instead of SQLite:
    ```
 
 *Note: The project uses PyMySQL (`pymysql`), a pure Python MySQL driver, which runs seamlessly on Windows and does not require complex C++ compile tools.*
+
+---
+
+## Production Email & Password Reset Setup (Render)
+
+To enable real password reset emails on Render:
+
+1. Open your **Render Dashboard** -> Select your Web Service -> **Environment**.
+2. Add the following environment variables:
+   - `EMAIL_BACKEND`: `django.core.mail.backends.smtp.EmailBackend`
+   - `EMAIL_HOST`: `smtp.gmail.com` *(or your SMTP host, e.g., Brevo/SendGrid)*
+   - `EMAIL_PORT`: `587`
+   - `EMAIL_USE_TLS`: `True`
+   - `EMAIL_HOST_USER`: `your-email@gmail.com`
+   - `EMAIL_HOST_PASSWORD`: `your-16-character-app-password`
+   - `DEFAULT_FROM_EMAIL`: `Quiznapse <your-email@gmail.com>`
+
+*Tip for Gmail:* Turn on 2-Factor Authentication on your Google account, then generate an **App Password** under Google Account Security settings to use as `EMAIL_HOST_PASSWORD`.
+
