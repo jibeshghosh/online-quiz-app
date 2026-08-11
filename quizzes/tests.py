@@ -108,5 +108,39 @@ class QuizAppTests(TestCase):
         response = self.client.get(reverse('github_login_mock'))
         self.assertEqual(response.status_code, 200)
 
+    def test_custom_social_account_adapter_pre_social_login(self):
+        """Verify CustomSocialAccountAdapter connects existing user account by email."""
+        from quizzes.adapters import CustomSocialAccountAdapter
+        from unittest.mock import MagicMock
+
+        adapter = CustomSocialAccountAdapter()
+        request = MagicMock()
+        sociallogin = MagicMock()
+        sociallogin.is_existing = False
+        sociallogin.user.email = 'test@example.com'
+        sociallogin.email_addresses = []
+
+        adapter.pre_social_login(request, sociallogin)
+        sociallogin.connect.assert_called_once_with(request, self.user)
+
+    def test_custom_social_account_adapter_populate_user_unique_username(self):
+        """Verify CustomSocialAccountAdapter generates unique usernames when base username exists."""
+        from quizzes.adapters import CustomSocialAccountAdapter
+        from unittest.mock import MagicMock
+
+        adapter = CustomSocialAccountAdapter()
+        request = MagicMock()
+        sociallogin = MagicMock()
+        sociallogin.account.provider = 'google'
+        sociallogin.account.extra_data = {'given_name': 'Test', 'family_name': 'User'}
+
+        # Try populating a user whose username would be 'testuser' (which exists in setUp)
+        fake_user = User(email='testuser@gmail.com', username='testuser')
+        populated_user = adapter.populate_user(request, sociallogin, {'email': 'testuser@gmail.com'})
+        
+        self.assertNotEqual(populated_user.username, 'testuser')
+        self.assertTrue(populated_user.username.startswith('testuser_'))
+
+
 
 

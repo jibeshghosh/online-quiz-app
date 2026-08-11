@@ -1,12 +1,42 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta http-equiv="refresh" content="0;url={% url 'login' %}" />
-    <title>Redirecting...</title>
-</head>
-<body>
-    <script>
+{% extends 'quizzes/base.html' %}
+{% load static %}
+
+{% block title %}Sign In Cancelled | Quiznapse{% endblock %}
+
+{% block content %}
+<div class="auth-container" style="max-width: 440px; margin: 80px auto; padding: 0 20px;">
+    <div style="text-align: center; margin-bottom: 24px;">
+        <div style="width: 72px; height: 72px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: var(--warning); font-size: 1.8rem;">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <h2 style="font-size: 1.8rem; font-family: 'Outfit', sans-serif;">Sign In Cancelled</h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 8px;">
+            You cancelled the authentication process. No changes were made to your account.
+        </p>
+    </div>
+
+    <div class="glass-card" style="padding: 24px; text-align: center;">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <a href="{% url 'login' %}" class="btn btn-primary" style="padding: 12px; font-weight: 600;">
+                Return to Sign In <i class="fas fa-sign-in-alt" style="margin-left: 6px;"></i>
+            </a>
+            <a href="{% url 'landing' %}" class="btn btn-secondary" style="padding: 12px; font-weight: 500;">
+                Go to Homepage
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    setTimeout(function() {
         window.location.href = "{% url 'login' %}";
-    </script>
-</body>
-</html>
+    }, 3000);
+</script>
+
+<style>
+    .main-content {
+        margin-left: 0 !important;
+        padding-top: 20px !important;
+    }
+</style>
+{% endblock %}
