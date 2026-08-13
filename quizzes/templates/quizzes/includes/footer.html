@@ -1,0 +1,165 @@
+{% load static %}
+<footer class="quiznapse-footer">
+    <!-- Ambient Background Glows -->
+    <div class="footer-ambient-glow footer-glow-1"></div>
+    <div class="footer-ambient-glow footer-glow-2"></div>
+
+    <div class="footer-container">
+        <!-- Main Footer Columns Grid -->
+        <div class="footer-grid">
+            
+            <!-- Column 1: Brand & Socials -->
+            <div class="footer-brand">
+                <a href="{% url 'landing' %}" class="footer-brand-logo">
+                    {% include 'quizzes/includes/logo.html' with size='32' id='footer' %}
+                    <span class="footer-brand-title">Quiznapse</span>
+                </a>
+                <p class="footer-tagline">
+                    Supercharge your mind with real-time, responsive learning tracks.
+                </p>
+                <div class="footer-socials">
+                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="social-btn github" aria-label="GitHub">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="social-btn twitter" aria-label="Twitter">
+                        <i class="fa-brands fa-x-twitter"></i>
+                    </a>
+                    <a href="https://discord.com" target="_blank" rel="noopener noreferrer" class="social-btn discord" aria-label="Discord">
+                        <i class="fa-brands fa-discord"></i>
+                    </a>
+                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="social-btn linkedin" aria-label="LinkedIn">
+                        <i class="fa-brands fa-linkedin-in"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Column 2: Learning Tracks -->
+            <div>
+                <h4 class="footer-col-title">Learning Tracks</h4>
+                <ul class="footer-links">
+                    <li class="footer-link-item">
+                        <a href="{% url 'quiz_list' %}?category=Programming">
+                            <i class="fas fa-chevron-right link-arrow"></i> Programming
+                        </a>
+                    </li>
+                    <li class="footer-link-item">
+                        <a href="{% url 'quiz_list' %}?category=Science">
+                            <i class="fas fa-chevron-right link-arrow"></i> Science
+                        </a>
+                    </li>
+                    <li class="footer-link-item">
+                        <a href="{% url 'quiz_list' %}?category=Mathematics">
+                            <i class="fas fa-chevron-right link-arrow"></i> Mathematics
+                        </a>
+                    </li>
+                    <li class="footer-link-item">
+                        <a href="{% url 'quiz_list' %}?category=General%20Knowledge">
+                            <i class="fas fa-chevron-right link-arrow"></i> Gen. Knowledge
+                        </a>
+                    </li>
+                    <li class="footer-link-item">
+                        <a href="{% url 'quiz_list' %}?category=Aptitude">
+                            <i class="fas fa-chevron-right link-arrow"></i> Aptitude
+                        </a>
+                    </li>
+                    <li class="footer-link-item">
+                        <a href="{% url 'quiz_list' %}?category=History">
+                            <i class="fas fa-chevron-right link-arrow"></i> History
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Column 3: Platform -->
+            <div>
+                <h4 class="footer-col-title">Platform</h4>
+                <ul class="footer-links">
+                    <li class="footer-link-item">
+                        <a href="{% url 'quiz_list' %}">
+                            <i class="fas fa-chevron-right link-arrow"></i> Active Quizzes
+                        </a>
+                    </li>
+                    <li class="footer-link-item">
+                        <a href="{% url 'dashboard' %}">
+                            <i class="fas fa-chevron-right link-arrow"></i> Leaderboards
+                        </a>
+                    </li>
+                    <li class="footer-link-item">
+                        <a href="#pricing">
+                            <i class="fas fa-chevron-right link-arrow"></i> Pricing
+                        </a>
+                    </li>
+                    <li class="footer-link-item">
+                        <a href="{% if user.is_staff %}/admin/quizzes/quiz/add/{% else %}{% url 'quiz_list' %}{% endif %}">
+                            <i class="fas fa-chevron-right link-arrow"></i> Create a Quiz
+                        </a>
+                    </li>
+                    <li class="footer-link-item">
+                        <a href="#faqs">
+                            <i class="fas fa-chevron-right link-arrow"></i> FAQs
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Column 4: Newsletter / Action -->
+            <div class="footer-newsletter">
+                <h4 class="footer-col-title">Stay Connected</h4>
+                <p class="newsletter-desc">
+                    Get weekly quiz drops, learning streak updates, and new feature alerts.
+                </p>
+                <form id="footer-newsletter-form" class="newsletter-form" onsubmit="handleFooterNewsletter(event)">
+                    <div class="newsletter-input-group">
+                        <i class="far fa-envelope mail-icon"></i>
+                        <input type="email" id="footer-email-input" class="newsletter-input" placeholder="Enter your email" required />
+                        <button type="submit" class="newsletter-btn" aria-label="Subscribe to newsletter">
+                            <span>Subscribe</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div id="newsletter-status" class="newsletter-message"></div>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- Faint Gradient Divider Line -->
+        <div class="footer-divider"></div>
+
+        <!-- Bottom Copyright & Credits Bar -->
+        <div class="footer-bottom">
+            <div class="footer-copyright">
+                <span>&copy; 2026 Quiznapse. All rights reserved.</span>
+            </div>
+
+            <div class="footer-credits">
+                <span>Developed by <a href="https://github.com/jibeshghosh" target="_blank" rel="noopener noreferrer" class="credit-developer">Jibesh Ghosh</a></span>
+            </div>
+
+            <div class="footer-legal-links">
+                <a href="#privacy">Privacy Policy</a>
+                <a href="#terms">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    function handleFooterNewsletter(event) {
+        event.preventDefault();
+        const input = document.getElementById('footer-email-input');
+        const statusMsg = document.getElementById('newsletter-status');
+        
+        if (input && input.value.trim() !== '') {
+            statusMsg.className = 'newsletter-message success';
+            statusMsg.textContent = '⚡ Subscribed successfully! Welcome to Quiznapse.';
+            input.value = '';
+            setTimeout(() => {
+                statusMsg.style.display = 'none';
+            }, 5000);
+        } else {
+            statusMsg.className = 'newsletter-message error';
+            statusMsg.textContent = 'Please enter a valid email address.';
+        }
+    }
+</script>

@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}?v=3">
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     <link rel="stylesheet" href="{% static 'css/quiz.css' %}">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}?v=1">
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -178,6 +179,8 @@
             <div class="content-container">
                 {% block content %}{% endblock %}
             </div>
+
+            {% include 'quizzes/includes/footer.html' %}
         </main>
     </div>
 
