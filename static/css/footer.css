@@ -1,17 +1,50 @@
 /* ==========================================
-   Quiznapse Cyberpunk Footer Stylesheet
+   Quiznapse Theme-Aware Cyberpunk Footer
    ========================================== */
 
+/* Default Dark Theme Variables */
 .quiznapse-footer {
+    --footer-bg: #070A13;
+    --footer-text-primary: #FFFFFF;
+    --footer-text-muted: #9CA3AF;
+    --footer-border: rgba(255, 255, 255, 0.08);
+    --footer-card-bg: rgba(255, 255, 255, 0.04);
+    --footer-card-border: rgba(255, 255, 255, 0.08);
+    --footer-input-bg: rgba(255, 255, 255, 0.03);
+    --footer-input-border: rgba(255, 255, 255, 0.1);
+    --footer-input-text: #FFFFFF;
+    --footer-input-placeholder: #64748B;
+    --footer-divider: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.08) 20%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.08) 80%, rgba(255, 255, 255, 0) 100%);
+    --footer-brand-gradient: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #a855f7 100%);
+    --footer-glow-opacity: 0.15;
+    
     position: relative;
-    background: #070A13;
-    color: #9CA3AF;
+    background: var(--footer-bg);
+    color: var(--footer-text-muted);
     font-family: 'Inter', sans-serif;
     padding-top: 60px;
     padding-bottom: 30px;
     overflow: hidden;
     border-top: 1px solid transparent;
     z-index: 10;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light Theme Overrides */
+body[data-theme="light"] .quiznapse-footer {
+    --footer-bg: #f8fafc;
+    --footer-text-primary: #0f172a;
+    --footer-text-muted: #475569;
+    --footer-border: rgba(15, 23, 42, 0.08);
+    --footer-card-bg: rgba(15, 23, 42, 0.04);
+    --footer-card-border: rgba(15, 23, 42, 0.08);
+    --footer-input-bg: rgba(15, 23, 42, 0.03);
+    --footer-input-border: rgba(15, 23, 42, 0.12);
+    --footer-input-text: #0f172a;
+    --footer-input-placeholder: #64748b;
+    --footer-divider: linear-gradient(90deg, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 0.08) 20%, rgba(15, 23, 42, 0.15) 50%, rgba(15, 23, 42, 0.08) 80%, rgba(15, 23, 42, 0) 100%);
+    --footer-brand-gradient: linear-gradient(135deg, #0f172a 0%, #334155 50%, #7c3aed 100%);
+    --footer-glow-opacity: 0.25;
 }
 
 /* Neon Top Border Accent Line */
@@ -39,8 +72,9 @@
     border-radius: 50%;
     filter: blur(120px);
     pointer-events: none;
-    opacity: 0.15;
+    opacity: var(--footer-glow-opacity);
     z-index: 0;
+    transition: opacity 0.3s ease;
 }
 
 .footer-glow-1 {
@@ -90,7 +124,7 @@
     font-size: 1.6rem;
     font-weight: 800;
     letter-spacing: -0.02em;
-    background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #a855f7 100%);
+    background: var(--footer-brand-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -98,7 +132,7 @@
 .footer-tagline {
     font-size: 0.95rem;
     line-height: 1.6;
-    color: #9CA3AF;
+    color: var(--footer-text-muted);
     max-width: 340px;
 }
 
@@ -113,9 +147,9 @@
     width: 40px;
     height: 40px;
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #9CA3AF;
+    background: var(--footer-card-bg);
+    border: 1px solid var(--footer-card-border);
+    color: var(--footer-text-muted);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -126,7 +160,7 @@
 }
 
 .social-btn:hover {
-    color: #FFFFFF;
+    color: var(--footer-text-primary);
     background: rgba(168, 85, 247, 0.15);
     border-color: rgba(168, 85, 247, 0.5);
     transform: translateY(-3px);
@@ -134,8 +168,8 @@
 }
 
 .social-btn.github:hover {
-    border-color: rgba(255, 255, 255, 0.6);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    border-color: rgba(168, 85, 247, 0.6);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
 }
 
 .social-btn.twitter:hover {
@@ -161,13 +195,14 @@
     font-family: 'Outfit', sans-serif;
     font-size: 1.05rem;
     font-weight: 700;
-    color: #FFFFFF;
+    color: var(--footer-text-primary);
     margin-bottom: 20px;
     letter-spacing: 0.02em;
     position: relative;
     display: flex;
     align-items: center;
     gap: 8px;
+    transition: color 0.3s ease;
 }
 
 .footer-col-title::after {
@@ -191,7 +226,7 @@
 }
 
 .footer-link-item a {
-    color: #9CA3AF;
+    color: var(--footer-text-muted);
     font-size: 0.92rem;
     text-decoration: none;
     display: inline-flex;
@@ -201,7 +236,7 @@
 }
 
 .footer-link-item a:hover {
-    color: #FFFFFF;
+    color: var(--footer-text-primary);
     transform: translateX(5px);
     text-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
 }
@@ -228,7 +263,7 @@
 .newsletter-desc {
     font-size: 0.9rem;
     line-height: 1.5;
-    color: #9CA3AF;
+    color: var(--footer-text-muted);
 }
 
 .newsletter-form {
@@ -241,8 +276,8 @@
 .newsletter-input-group {
     display: flex;
     align-items: center;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--footer-input-bg);
+    border: 1px solid var(--footer-input-border);
     border-radius: 12px;
     padding: 4px 4px 4px 14px;
     transition: all 0.3s ease;
@@ -250,13 +285,13 @@
 }
 
 .newsletter-input-group:focus-within {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--footer-card-bg);
     border-color: rgba(168, 85, 247, 0.6);
     box-shadow: 0 0 18px rgba(168, 85, 247, 0.25);
 }
 
 .newsletter-input-group i.mail-icon {
-    color: #64748B;
+    color: var(--footer-text-muted);
     font-size: 0.95rem;
     margin-right: 10px;
 }
@@ -265,14 +300,14 @@
     background: transparent;
     border: none;
     outline: none;
-    color: #FFFFFF;
+    color: var(--footer-input-text);
     font-family: inherit;
     font-size: 0.9rem;
     width: 100%;
 }
 
 .newsletter-input::placeholder {
-    color: #64748B;
+    color: var(--footer-input-placeholder);
 }
 
 .newsletter-btn {
@@ -313,29 +348,25 @@
 
 .newsletter-message.success {
     display: block;
-    color: #34d399;
-    background: rgba(52, 211, 153, 0.1);
-    border: 1px solid rgba(52, 211, 153, 0.2);
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .newsletter-message.error {
     display: block;
-    color: #f87171;
-    background: rgba(248, 113, 113, 0.1);
-    border: 1px solid rgba(248, 113, 113, 0.2);
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 /* Bottom Bar Divider Line */
 .footer-divider {
     height: 1px;
     width: 100%;
-    background: linear-gradient(90deg, 
-        rgba(255, 255, 255, 0) 0%, 
-        rgba(255, 255, 255, 0.08) 20%, 
-        rgba(255, 255, 255, 0.12) 50%, 
-        rgba(255, 255, 255, 0.08) 80%, 
-        rgba(255, 255, 255, 0) 100%);
+    background: var(--footer-divider);
     margin-bottom: 24px;
+    transition: background 0.3s ease;
 }
 
 /* Bottom Bar Section */
@@ -346,7 +377,8 @@
     flex-wrap: wrap;
     gap: 16px;
     font-size: 0.88rem;
-    color: #9CA3AF;
+    color: var(--footer-text-muted);
+    transition: color 0.3s ease;
 }
 
 .footer-copyright {
@@ -359,16 +391,17 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--footer-card-bg);
+    border: 1px solid var(--footer-card-border);
     padding: 6px 14px;
     border-radius: 20px;
     backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
 }
 
 .credit-developer {
     font-weight: 600;
-    background: linear-gradient(135deg, #38BDF8 0%, #A855F7 100%);
+    background: linear-gradient(135deg, #0284C7 0%, #A855F7 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     position: relative;
@@ -386,14 +419,14 @@
 }
 
 .footer-legal-links a {
-    color: #9CA3AF;
+    color: var(--footer-text-muted);
     text-decoration: none;
     font-size: 0.85rem;
     transition: color 0.2s ease;
 }
 
 .footer-legal-links a:hover {
-    color: #FFFFFF;
+    color: var(--footer-text-primary);
 }
 
 /* Keyframe animations */
