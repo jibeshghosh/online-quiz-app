@@ -1,10 +1,12 @@
 /**
  * Scroll-Triggered Animated Number Counter
- * Cross-browser compatible (Edge, Chrome, Firefox, Safari)
+ * Triggers counting animation when the stats card container is scrolled into view.
  */
 
 function initStatCounters() {
+    const statsCards = document.querySelectorAll('.stats-card-container, .metrics-grid');
     const counterElements = document.querySelectorAll('.stat-number, .counter-number');
+    
     if (!counterElements.length) return;
 
     /**
@@ -12,36 +14,24 @@ function initStatCounters() {
      * @param {HTMLElement} el 
      * @param {number} duration Duration in milliseconds (default 1500ms)
      */
-    function animateNumberCounter(el, duration = 1500) {
-        // Prevent double execution on the same element
-        if (el.dataset.animating === 'true' || el.dataset.animated === 'true') return;
-        el.dataset.animating = 'true';
+    function animateSingleCounter(el, duration = 1500) {
+        if (el.dataset.animated === 'true') return;
+        el.dataset.animated = 'true';
 
         const rawText = (el.getAttribute('data-target') || el.textContent || '').trim();
-        if (!rawText) {
-            el.dataset.animating = 'false';
-            return;
-        }
+        if (!rawText) return;
 
-        // Match leading digits/commas/decimals and trailing non-digit suffix (e.g. "400", "95%", "1,200+")
         const match = rawText.match(/^([0-9,.]+)(.*)$/);
-        if (!match) {
-            el.dataset.animating = 'false';
-            return;
-        }
+        if (!match) return;
 
         const targetVal = parseFloat(match[1].replace(/,/g, ''));
-        if (isNaN(targetVal)) {
-            el.dataset.animating = 'false';
-            return;
-        }
+        if (isNaN(targetVal)) return;
 
         const suffix = match[2] || '';
         const isFloat = match[1].includes('.');
         const decimals = isFloat ? (match[1].split('.')[1] || '').length : 0;
-        
+
         const startTime = performance.now();
-        // Smooth ease-out cubic animation
         const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 
         function step(currentTime) {
@@ -59,50 +49,73 @@ function initStatCounters() {
             if (progress < 1) {
                 requestAnimationFrame(step);
             } else {
-                // Ensure exact original text value is set upon completion
+                // Ensure exact original target value is set upon completion
                 el.textContent = rawText;
-                el.dataset.animating = 'false';
-                el.dataset.animated = 'true';
             }
         }
 
-        // Initialize starting value to 0 before starting animation
-        el.textContent = (isFloat ? (0).toFixed(decimals) : '0') + suffix;
         requestAnimationFrame(step);
     }
 
-    // Set up IntersectionObserver to trigger animation when scrolled into viewport
+    function triggerCardCounters(container) {
+        const counters = container.querySelectorAll('.stat-number, .counter-number');
+        counters.forEach((el, index) => {
+            // Subtle 60ms stagger delay for a premium modern feel
+            setTimeout(() => {
+                animateSingleCounter(el, 1500);
+            }, index * 60);
+        });
+    }
+
+    // Set initial displayed text to 0 for all counters before scrolling into view
+    counterElements.forEach(el => {
+        const rawText = (el.getAttribute('data-target') || el.textContent || '').trim();
+        const match = rawText.match(/^([0-9,.]+)(.*)$/);
+        if (match) {
+            const suffix = match[2] || '';
+            const isFloat = match[1].includes('.');
+            const decimals = isFloat ? (match[1].split('.')[1] || '').length : 0;
+            el.textContent = (isFloat ? (0).toFixed(decimals) : '0') + suffix;
+        }
+    });
+
     if ('IntersectionObserver' in window) {
         const observerOptions = {
-            threshold: 0.05,
-            rootMargin: '0px 0px 0px 0px'
+            threshold: 0.2, // Triggers when 20% of the glass card is visible
+            rootMargin: '0px 0px -20px 0px'
         };
 
         const observer = new IntersectionObserver((entries, obs) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting || entry.intersectionRatio > 0) {
-                    animateNumberCounter(entry.target, 1500);
+                if (entry.isIntersecting) {
+                    triggerCardCounters(entry.target);
                     obs.unobserve(entry.target);
                 }
             });
         }, observerOptions);
 
-        counterElements.forEach(el => {
-            // If already in viewport on page load, trigger immediately
-            const rect = el.getBoundingClientRect();
-            if (rect.top >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)) {
-                animateNumberCounter(el, 1500);
-            } else {
-                observer.observe(el);
-            }
-        });
+        if (statsCards.length > 0) {
+            statsCards.forEach(card => observer.observe(card));
+        } else {
+            // Fallback: observe individual elements
+            counterElements.forEach(el => {
+                const singleObs = new IntersectionObserver((entries, sObs) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            animateSingleCounter(entry.target, 1500);
+                            sObs.unobserve(entry.target);
+                        }
+                    });
+                }, observerOptions);
+                singleObs.observe(el);
+            });
+        }
     } else {
-        // Fallback for older browsers without IntersectionObserver
-        counterElements.forEach(el => animateNumberCounter(el, 1500));
+        // Fallback for browsers without IntersectionObserver support
+        counterElements.forEach(el => animateSingleCounter(el, 1500));
     }
 }
 
-// Ensure execution whether script runs before or after DOMContentLoaded
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initStatCounters);
 } else {
