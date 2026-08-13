@@ -20,37 +20,35 @@ from .forms import RegistrationForm, UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.forms import AuthenticationForm
 
 def ensure_curated_quizzes_loaded():
-    """Ensures database contains the exact 400 topic-matched questions for all 40 quizzes."""
+    """Ensures database contains the exact 400 topic-matched questions for all 40 quizzes without wiping user attempts or data."""
     try:
         from .quiz_data import ALL_QUIZZES_DATA
-        sample_q = Question.objects.filter(quiz__title='Python Fundamentals').first()
-        if Quiz.objects.count() != 40 or Question.objects.count() != 400 or not sample_q or sample_q.question_text != "What is the output of print(2 ** 3) in Python?":
-            UserAnswer.objects.all().delete()
-            QuizAttempt.objects.all().delete()
-            Question.objects.all().delete()
-            Quiz.objects.all().delete()
-            
+        if Quiz.objects.count() < 40 or Question.objects.count() < 400:
             for category_name, topics in ALL_QUIZZES_DATA.items():
                 for topic_title, topic_data in topics.items():
-                    quiz = Quiz.objects.create(
+                    quiz, created = Quiz.objects.get_or_create(
                         title=topic_title,
-                        description=topic_data['description'],
-                        category=category_name,
-                        difficulty=topic_data['difficulty'],
-                        time_limit=topic_data['time_limit'],
-                        pass_mark=topic_data['pass_mark'],
-                        is_published=True
+                        defaults={
+                            'description': topic_data['description'],
+                            'category': category_name,
+                            'difficulty': topic_data['difficulty'],
+                            'time_limit': topic_data['time_limit'],
+                            'pass_mark': topic_data['pass_mark'],
+                            'is_published': True
+                        }
                     )
                     for q_tuple in topic_data['questions']:
-                        Question.objects.create(
+                        Question.objects.get_or_create(
                             quiz=quiz,
                             question_text=q_tuple[0],
-                            option_a=q_tuple[1],
-                            option_b=q_tuple[2],
-                            option_c=q_tuple[3],
-                            option_d=q_tuple[4],
-                            correct_option=q_tuple[5],
-                            explanation=q_tuple[6]
+                            defaults={
+                                'option_a': q_tuple[1],
+                                'option_b': q_tuple[2],
+                                'option_c': q_tuple[3],
+                                'option_d': q_tuple[4],
+                                'correct_option': q_tuple[5],
+                                'explanation': q_tuple[6]
+                            }
                         )
     except Exception:
         pass
