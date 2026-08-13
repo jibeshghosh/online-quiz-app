@@ -110,7 +110,7 @@ python manage.py runserver
 ```
 
 Open your browser and navigate to:
-- **Web App**: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+- **Web App**: [https://my-online-quiz-app.onrender.com/)
 - **Admin Panel**: [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
 
 ---
