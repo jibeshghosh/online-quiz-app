@@ -27,22 +27,22 @@
     </div>
 
     <!-- Glowing Glassmorphic Stats Grid -->
-    <div class="glass-card" style="width: 100%; max-width: 900px; padding: 40px; margin-bottom: 60px; border-radius: var(--border-radius-lg);">
+    <div class="glass-card stats-card-container" style="width: 100%; max-width: 900px; padding: 40px; margin-bottom: 60px; border-radius: var(--border-radius-lg);">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px;">
             <div>
-                <span style="display: block; font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--accent-primary); margin-bottom: 8px;">{{ stats.total_quizzes }}</span>
+                <span class="stat-number" data-target="{{ stats.total_quizzes }}" style="display: block; font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--accent-primary); margin-bottom: 8px;">{{ stats.total_quizzes }}</span>
                 <span style="font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Active Quizzes</span>
             </div>
             <div>
-                <span style="display: block; font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--accent-secondary); margin-bottom: 8px;">{{ stats.total_questions }}</span>
+                <span class="stat-number" data-target="{{ stats.total_questions }}" style="display: block; font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--accent-secondary); margin-bottom: 8px;">{{ stats.total_questions }}</span>
                 <span style="font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Total MCQs</span>
             </div>
             <div>
-                <span style="display: block; font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--success); margin-bottom: 8px;">{{ stats.total_users }}</span>
+                <span class="stat-number" data-target="{{ stats.total_users }}" style="display: block; font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--success); margin-bottom: 8px;">{{ stats.total_users }}</span>
                 <span style="font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Registered Users</span>
             </div>
             <div>
-                <span style="display: block; font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--info); margin-bottom: 8px;">{{ stats.total_attempts }}</span>
+                <span class="stat-number" data-target="{{ stats.total_attempts }}" style="display: block; font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--info); margin-bottom: 8px;">{{ stats.total_attempts }}</span>
                 <span style="font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Attempts Logged</span>
             </div>
         </div>
